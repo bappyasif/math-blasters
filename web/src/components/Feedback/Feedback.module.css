@@ -3,10 +3,10 @@
     Each state is defined here. each state assigns the correct token to the aliases used
     by the shared layout below.
   */
-  --feedback-surface: var(--surface-raised);
-  --feedback-border: var(--border-subtle);
-  --feedback-text: var(--text-primary);
-  --feedback-icon: var(--text-secondary);
+  --feedback-surface: var(--surface);
+  --feedback-border: var(--border);
+  --feedback-text: var(--text);
+  --feedback-icon: var(--text-muted);
 
   display: flex;
   align-items: center;
@@ -29,13 +29,13 @@
   shared
 */
 .idle {
-  --feedback-surface: var(--surface-raised);
-  --feedback-border: var(--border-subtle);
-  --feedback-icon: var(--text-secondary);
+  --feedback-surface: var(--surface);
+  --feedback-border: var(--border);
+  --feedback-icon: var(--text-muted);
 }
 
 .checking {
-  --feedback-surface: var(--surface-raised);
+  --feedback-surface: var(--surface-sunken);
   --feedback-border: var(--accent-500);
   --feedback-icon: var(--accent-500);
 }
