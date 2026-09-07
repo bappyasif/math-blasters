@@ -3,7 +3,6 @@
     Each state is defined here. each state assigns the correct token to the aliases used
     by the shared layout below.
   */
-  /* fixed css in earlier commit to map xorrectly with defined css tokens */
   --feedback-surface: var(--surface);
   --feedback-border: var(--border);
   --feedback-text: var(--text);
@@ -37,14 +36,14 @@
 
 .checking {
   --feedback-surface: var(--surface-sunken);
-  --feedback-border: var(--accent-500);
-  --feedback-icon: var(--accent-500);
+  --feedback-border: var(--accent);
+  --feedback-icon: var(--accent);
 }
 
 .correct {
   --feedback-surface: var(--success-soft);
-  --feedback-border: var(--success-500);
-  --feedback-icon: var(--success-500);
+  --feedback-border: var(--success);
+  --feedback-icon: var(--success);
 }
 
 .not-yet {
