@@ -1,3 +1,5 @@
+import { useEffect, useRef } from "react";
+
 type AnswerInputProps = {
     id: string;
     label: string;
@@ -25,6 +27,25 @@ export const AnswerInput = ({
     errorId,
     errorMessage
 }: AnswerInputProps) => {
+    const inputRef = useRef<HTMLInputElement>(null);
+
+    useEffect(() => {
+        const input = inputRef.current;
+        if (!input) return;
+        
+        // attaching a non passive listener to dom element
+        const handleWheel = (e: WheelEvent) => {
+            e.preventDefault();
+        };
+
+        input.addEventListener("wheel", handleWheel, {passive: false});
+
+        // cleaning up
+        return () => {
+            input.removeEventListener("wheel", handleWheel);
+        }
+    }, [])
+
     return (
         <div className="flex flex-col items-center gap-3 w-full max-w-xs mx-auto">
             <label
@@ -36,6 +57,7 @@ export const AnswerInput = ({
 
             <div className="relative w-full">
                 <input
+                    ref={inputRef}
                     id={id}
                     type="number"
                     inputMode="numeric"
@@ -43,11 +65,7 @@ export const AnswerInput = ({
                     onChange={(e) => onChange(e.target.value)}
                     onKeyDown={(e) => {
                         if (e.key === "Enter") onSubmit();
-                    }}
-                    onWheel={(event) => {
-                        if (document.activeElement == event.currentTarget) {
-                            event.preventDefault();
-                        }
+                        if (e.key === "Escape") onReset();
                     }}
                     onReset={onReset}
                     placeholder={placeholder}
