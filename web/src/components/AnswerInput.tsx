@@ -42,7 +42,7 @@ export const AnswerInput = ({
 
         // cleaning up
         return () => {
-            input.removeEventListener("wheel", handleWheel);
+            input.removeEventListener("wheel", handleWheel, false);
         }
     }, [])
 
