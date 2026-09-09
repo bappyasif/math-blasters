@@ -36,11 +36,15 @@ export const AnswerInput = ({
             e.preventDefault();
         };
 
-        input.addEventListener("wheel", handleWheel, { passive: false });
+        // options for event listener
+        const eventOptions: AddEventListenerOptions = { passive: false };
+
+        input.addEventListener("wheel", handleWheel, eventOptions);
 
         // cleaning up
         return () => {
-            input.removeEventListener("wheel", handleWheel, false);
+            // removing event listener with same options so that mergebot doesn't complain
+            input.removeEventListener("wheel", handleWheel, eventOptions);
         }
     }, [])
 
