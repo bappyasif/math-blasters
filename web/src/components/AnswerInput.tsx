@@ -33,7 +33,10 @@ export const AnswerInput = ({
 
         // attaching a non passive listener to dom element
         const handleWheel = (e: WheelEvent) => {
-            e.preventDefault();
+            // prevent page scrolling when input is focused
+            if (document.activeElement == input) {
+                e.preventDefault();
+            }
         };
 
         // options for event listener
@@ -65,12 +68,11 @@ export const AnswerInput = ({
                     if (e.key === "Enter") onSubmit();
                     if (e.key === "Escape") onReset();
                 }}
-                onReset={onReset}
                 placeholder={placeholder}
                 disabled={disabled}
                 aria-invalid={invalid}
                 aria-describedby={invalid ? `${errorId}` : undefined}
-                className={`answer-field__input` + (invalid ? " border-[var(--danger)]" : "")}
+                className={`answer-field__input`}
             />
         </label>
     );

@@ -107,4 +107,23 @@ describe('AnswerInput', () => {
         expect(input).toHaveValue(43);
     });
 
+    it("announces invalid state and error message", async () => {
+        render(
+            <AnswerInput
+                id="answer"
+                label="How many?"
+                value="42"
+                onChange={vi.fn()}
+                onSubmit={vi.fn()}
+                onReset={vi.fn()}
+                invalid
+                errorId="answer-error"
+            />
+        );
+
+        const input = screen.getByLabelText("How many?");
+        expect(input).toHaveAttribute("aria-invalid", "true");
+        expect(input).toHaveAttribute("aria-describedby", "answer-error");
+    });
+
 });
