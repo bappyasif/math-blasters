@@ -40,14 +40,15 @@ export const AnswerInput = ({
         };
 
         // options for event listener
-        const eventOptions: AddEventListenerOptions = { passive: false };
+        const controller = new AbortController();
+        const eventOptions = { passive: false, signal: controller.signal };
 
         input.addEventListener("wheel", handleWheel, eventOptions);
 
         // cleaning up
         return () => {
-            // removing event listener with same options so that mergebot doesn't complain
-            input.removeEventListener("wheel", handleWheel, eventOptions);
+            // tear down event listener
+            controller.abort();
         }
     }, [])
 
