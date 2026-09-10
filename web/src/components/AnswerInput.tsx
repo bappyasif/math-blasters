@@ -71,7 +71,7 @@ export const AnswerInput = ({
                 placeholder={placeholder}
                 disabled={disabled}
                 aria-invalid={invalid}
-                aria-describedby={invalid ? `${errorId}` : undefined}
+                aria-describedby={invalid ? `${errorId ?? `${id}-error`}` : undefined}
                 className={`answer-field__input`}
             />
         </label>
