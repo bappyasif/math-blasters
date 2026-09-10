@@ -34,16 +34,15 @@ export const AnswerInput = ({
         // attaching a non passive listener to dom element
         const handleWheel = (e: WheelEvent) => {
             // prevent page scrolling when input is focused
-            if (document.activeElement == input) {
+            if (document.activeElement === input) {
                 e.preventDefault();
             }
         };
 
         // options for event listener
         const controller = new AbortController();
-        const eventOptions = { passive: false, signal: controller.signal };
 
-        input.addEventListener("wheel", handleWheel, eventOptions);
+        input.addEventListener("wheel", handleWheel, { passive: false, signal: controller.signal });
 
         // cleaning up
         return () => {
