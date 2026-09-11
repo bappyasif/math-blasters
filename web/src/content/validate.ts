@@ -1,17 +1,19 @@
 import { Lesson } from "./types";
 
 export const validateLesson = (lesson: Lesson, path?: string): void => {
-    const outcome = typeof lesson.outcome === "string" ? lesson.outcome.trim() : "";
+  const lessonPath = typeof path === "string" && path.trim() !== "" ? path : "<unknown lesson>";
+
+  const outcome = typeof lesson.outcome === "string" ? lesson.outcome.trim() : "";
 
   if (lesson.type === "lab" && outcome === "") {
     throw new Error(
-      `${path}: the "outcome" field is required for a lab lesson.`
+      `${lessonPath}: the "outcome" field is required for a lab lesson.`
     );
   }
 
   if (lesson.type === "tutorial" && outcome !== "") {
     throw new Error(
-      `${path}: the "outcome" field is not allowed for a tutorial lesson.`
+      `${lessonPath}: the "outcome" field is not allowed for a tutorial lesson.`
     );
   }
 };
