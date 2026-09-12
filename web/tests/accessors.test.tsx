@@ -1,4 +1,3 @@
-import { get } from "http";
 import { contentIndex, getLesson, getModule, getModules } from "../src/content/accessors";
 import { expectNoCriteria } from "./helpers/accessors";
 
@@ -35,14 +34,16 @@ describe("content accessors", () => {
     });
 
     it("does not expose criteria from getModules", () => {
+        const pageModules = getModules();
 
-        expectNoCriteria(getModules());
+        expectNoCriteria(pageModules);
     })
 
     it("does not expose criteria from getLesson", () => {
         const fixtureLesson = contentIndex[0].lessons[0];
         const lessonSlug = fixtureLesson.slug;
 
+        expect(getLesson(lessonSlug)).toBeDefined();
         expectNoCriteria(getLesson(lessonSlug));
     })
 
@@ -50,6 +51,7 @@ describe("content accessors", () => {
         const fixtureModule = contentIndex[0];
         const pageModule = getModule(fixtureModule.slug);
 
+        expect(pageModule).toBeDefined();
         expectNoCriteria(pageModule);
     });
 });
