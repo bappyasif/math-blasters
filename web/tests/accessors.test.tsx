@@ -38,8 +38,16 @@ describe("content accessors", () => {
     })
 
     it("does not expose criteria from getLesson", () => {
-        const lesson = contentIndex[0].lessons[0];
-        const lessonSlug = getLesson(lesson.slug);
-        expectNoCriteria(lessonSlug)
+        const fixtureLesson = contentIndex[0].lessons[0];
+        const pageLesson = getLesson(fixtureLesson.slug);
+
+        expectNoCriteria(pageLesson);
     })
+
+    it("does not expose criteria from getModule", () => {
+        const fixtureModule = contentIndex[0];
+        const pageModule = getModule(fixtureModule.slug);
+
+        expectNoCriteria(pageModule);
+    });
 });
