@@ -1,3 +1,4 @@
+import { get } from "http";
 import { contentIndex, getLesson, getModule, getModules } from "../src/content/accessors";
 import { expectNoCriteria } from "./helpers/accessors";
 
@@ -34,14 +35,15 @@ describe("content accessors", () => {
     });
 
     it("does not expose criteria from getModules", () => {
+
         expectNoCriteria(getModules());
     })
 
     it("does not expose criteria from getLesson", () => {
         const fixtureLesson = contentIndex[0].lessons[0];
-        const pageLesson = getLesson(fixtureLesson.slug);
+        const lessonSlug = fixtureLesson.slug;
 
-        expectNoCriteria(pageLesson);
+        expectNoCriteria(getLesson(lessonSlug));
     })
 
     it("does not expose criteria from getModule", () => {
