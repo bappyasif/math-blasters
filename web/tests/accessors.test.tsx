@@ -38,7 +38,8 @@ describe("content accessors", () => {
     })
 
     it("does not expose criteria from getLesson", () => {
-        const lessonSlug = contentIndex[0].lessons[0].slug;
+        const lesson = contentIndex[0].lessons[0];
+        const lessonSlug = getLesson(lesson.slug);
         expectNoCriteria(lessonSlug)
     })
 });
