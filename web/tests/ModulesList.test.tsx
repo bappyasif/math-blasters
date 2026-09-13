@@ -13,6 +13,8 @@ describe("ModulesList checks", () => {
     it("test list view", () => {
         const { container } = render(<ModulesList />);
         expect(container).toBeInTheDocument();
+
+        expect(screen.getByText("Arithmetic Addition")).toBeInTheDocument();
     })
 
     it("test empty state", () => {

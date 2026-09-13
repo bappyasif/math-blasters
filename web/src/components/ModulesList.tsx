@@ -9,7 +9,7 @@ export const ModulesList = () => {
                 {modules.map((module) => (
                     <a 
                         key={module.slug} 
-                        href={`/modules/${module.slug}`}
+                        href={`/modules/${encodeURIComponent(module.slug)}`}
                         className="module-card-link"
                     >
                         {/* will replace it with "CARD" when ready */}
