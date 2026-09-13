@@ -421,3 +421,53 @@ a.btn {
 .error-state__actions {
   margin-top: var(--space-2);
 }
+
+/* --- modules list --- */
+.modules-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(12rem, 1fr));
+  gap: var(--space-3);
+  padding: var(--space-4);
+  background-color: var(--surface);
+  text-align: center;
+  width: 100%;
+}
+
+.module-card-link {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding: var(--space-4);
+  background-color: var(--surface);
+  border: 2px solid var(--border);
+  border-radius: var(--radius-md);
+  text-align: center;
+  width: 100%;
+  text-decoration: none;
+  color: var(--text);
+  transition: all 0.2s ease-in-out;
+}
+
+.module-card-link:hover {
+  background-color: var(--surface-sunken);
+  border-color: var(--primary);
+  color: var(--primary);
+}
+
+.module-card-link:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px var(--sky-400);
+  border-radius: var(--radius-md);
+}
+
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: var(--space-4);
+  background-color: var(--surface);
+  border: 2px solid var(--border);
+  border-radius: var(--radius-md);
+  text-align: center;
+  width: 100%;
+}

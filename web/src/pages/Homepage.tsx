@@ -8,6 +8,7 @@ import { api, type ApiError } from "../api/client";
 import { Button } from "../components/Button";
 import { Skeleton } from "../components/Skeleton";
 import { ErrorState } from "../components/ErrorState";
+import { ModulesList } from "../components/ModulesList";
 
 /**
  * Setup check / Homepage
@@ -72,6 +73,8 @@ export function Homepage() {
           Styleguide
         </Link>
       )}
+      <h2 className="card__title">Setup check</h2>
+      <ModulesList />
       {error && (
         <ErrorState message={error} retry={loadProblem}>
           <p className="muted">
