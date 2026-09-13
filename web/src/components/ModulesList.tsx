@@ -2,7 +2,6 @@ import { getModules } from "../content"
 
 export const ModulesList = () => {
     const modules = getModules();
-    // const modules = [];
 
     return (
         modules?.length ? (

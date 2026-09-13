@@ -455,8 +455,8 @@ a.btn {
 }
 
 .module-card-link:focus {
-  outline: none;
-  box-shadow: 0 0 0 3px var(--sky-400);
+  outline: 3px solid var(--sky-400);
+  outline-offset: 2px;
   border-radius: var(--radius-md);
 }
 

@@ -6,6 +6,10 @@ import { Homepage } from "../src/pages/Homepage";
 import { MemoryRouter } from "react-router-dom";
 
 describe("ModulesList checks", () => {
+    afterEach(() => {
+        vi.restoreAllMocks();
+    });
+
     it("test list view", () => {
         const { container } = render(<ModulesList />);
         expect(container).toBeInTheDocument();
