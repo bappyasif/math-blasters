@@ -7,7 +7,9 @@ describe("validate lesson", () => {
             type: "lab",
         });
 
-        expect(() => validateLesson(lesson, "lessons/lab.md")).toThrow();
+        expect(() => validateLesson(lesson, "lessons/lab.md")).toThrow(
+            "lessons/lab.md: the \"outcome\" field is required for a lab lesson."
+        );
     });
 
     it("rejects a tutorial with an outcome", () => {
@@ -16,7 +18,9 @@ describe("validate lesson", () => {
             outcome: "Learn how to count marbles.",
         });
 
-        expect(() => validateLesson(lesson, "lessons/tutorial.md")).toThrow();
+        expect(() => validateLesson(lesson, "lessons/tutorial.md")).toThrow(
+            "lessons/tutorial.md: the \"outcome\" field is not allowed for a tutorial lesson."
+        );
     });
 
     it("accepts a valid lab", () => {
