@@ -2,8 +2,6 @@ import { render, screen } from "@testing-library/react";
 import { ModulesList } from "../src/components/ModulesList";
 import * as content from '../src/content';
 import { expectNoA11yViolations } from "./helpers/a11y";
-import { Homepage } from "../src/pages/Homepage";
-import { MemoryRouter } from "react-router-dom";
 
 describe("ModulesList checks", () => {
     afterEach(() => {
@@ -27,9 +25,7 @@ describe("ModulesList checks", () => {
 
     it("check a11y on list view", async () => {
         const { container } = render(
-            <MemoryRouter>
-                <Homepage />
-            </MemoryRouter>
+            <ModulesList />
         );
         await expectNoA11yViolations(container);
     })
