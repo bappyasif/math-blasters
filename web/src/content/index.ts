@@ -56,7 +56,7 @@ export function getLesson(slug: string): PageLesson | undefined {
   return undefined;
 }
 
-export function toPageLesson(lesson: Lesson): PageLesson {
+function toPageLesson(lesson: Lesson): PageLesson {
   const steps = lesson.steps.map((step) => {
     if (step.type === "answer") {
       const { prompt, type } = step;
@@ -73,7 +73,7 @@ export function toPageLesson(lesson: Lesson): PageLesson {
   };
 }
 
-export function toPageModule(module: Module): PageModule {
+function toPageModule(module: Module): PageModule {
   return {
     ...module,
     lessons: module.lessons.map(toPageLesson),
