@@ -12,6 +12,10 @@ export const expectNoCriteria = (value: unknown) : void => {
             expect(key).not.toBe("criteria");
             expect(key).not.toBe("expected");
 
+            if (key === "criteria" || key === "expected") {
+                throw new Error(`Forbidden field found: ${key}`);
+            }
+
             expectNoCriteria(val);
         }
     }
