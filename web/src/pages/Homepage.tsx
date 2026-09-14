@@ -73,7 +73,6 @@ export function Homepage() {
           Styleguide
         </Link>
       )}
-      <h2 className="card__title">Setup check</h2>
       <ModulesList />
       {error && (
         <ErrorState message={error} retry={loadProblem}>

@@ -460,9 +460,16 @@ a.btn {
 }
 
 .module-card-description {
-  font-size: 1.05rem;
+  font-size: 0.85rem;
   font-weight: 500;
   color: var(--text);
+}
+
+.module-card-lessons {
+  margin-top: var(--space-2);
+  color: var(--text-muted);
+  font-size: 0.75rem;
+  font-weight: 400;
 }
 
 .empty-state {
