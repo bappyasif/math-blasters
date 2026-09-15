@@ -1,4 +1,3 @@
-import { Link } from "react-router-dom";
 import { getModules } from "../content"
 import { Card } from "./Card";
 import { PageLayout } from "./PageLayout";
@@ -25,9 +24,9 @@ export const ModulesList = () => {
         ) : (
             <div className="empty-state">
                 <p>No modules found.</p>
-                <Link to="/CONTRIBUTING.md">
+                <a href="https://github.com/freeCodeCamp-Summer-Cohort-2026/math-blasters/blob/main/CONTRIBUTING.md#adding-a-lesson">
                     Learn how to add a lesson
-                </Link>
+                </a>
             </div>
         )
     )
