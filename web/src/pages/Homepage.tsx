@@ -2,6 +2,8 @@ import { ModulesList } from "../components/ModulesList";
 
 export function Homepage() {
   return (
-    <ModulesList />
+    <main>
+      <ModulesList />
+    </main>
   )
 }
