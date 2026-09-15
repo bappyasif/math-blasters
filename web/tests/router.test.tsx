@@ -79,5 +79,7 @@ describe("Router & Layout", () => {
 
     const homeHeading = screen.getByRole("heading", { name: /modules/i });
     expect(homeHeading).toBeInTheDocument();
+
+    expect(homeHeading).toHaveFocus();
   });
 });

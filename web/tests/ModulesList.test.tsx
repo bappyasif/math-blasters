@@ -3,6 +3,7 @@ import { ModulesList } from "../src/components/ModulesList";
 import * as content from '../src/content';
 import { expectNoA11yViolations } from "./helpers/a11y";
 import { MemoryRouter } from "react-router-dom";
+import { vi, afterEach } from "vitest";
 
 describe("ModulesList checks", () => {
     afterEach(() => {
