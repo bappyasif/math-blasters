@@ -1,27 +1,24 @@
 import { Link } from "react-router-dom";
 import { getModules } from "../content"
 import { Card } from "./Card";
-import { PageLayout } from "./PageLayout";
 
 export const ModulesList = () => {
     const modules = getModules();
 
     return (
         modules?.length ? (
-            <PageLayout heading={<h1>Modules</h1>}>
-                {modules.map((module) => (
-                    <Link
-                        key={module.slug}
-                        to={`/modules/${encodeURIComponent(module.slug)}`}
-                        className="module-card-link"
-                    >
-                        <Card title={module.title} titleLevel="h2" className="module-card">
-                            <p className="module-card-description">{module.description || "No description provided"}</p>
-                            <span className="module-card-lessons">{module.lessons.length} lessons</span>
-                        </Card>
-                    </Link>
-                ))}
-            </PageLayout>
+            modules.map((module) => (
+                <Link
+                    key={module.slug}
+                    to={`/modules/${encodeURIComponent(module.slug)}`}
+                    className="module-card-link"
+                >
+                    <Card title={module.title} titleLevel="h2" className="module-card">
+                        <p className="module-card-description">{module.description || "No description provided"}</p>
+                        <span className="module-card-lessons">{module.lessons.length} lessons</span>
+                    </Card>
+                </Link>
+            ))
         ) : (
             <div className="empty-state" role="alert">
                 <p>No modules found.</p>

@@ -2,6 +2,7 @@ import { render, screen } from "@testing-library/react";
 import { ModulesList } from "../src/components/ModulesList";
 import * as content from '../src/content';
 import { expectNoA11yViolations } from "./helpers/a11y";
+import { MemoryRouter } from "react-router-dom";
 
 describe("ModulesList checks", () => {
     afterEach(() => {
@@ -9,7 +10,11 @@ describe("ModulesList checks", () => {
     });
 
     it("test list view", () => {
-        const { container } = render(<ModulesList />);
+        const { container } = render(
+        <MemoryRouter>
+            <ModulesList />
+        </MemoryRouter>
+    );
         expect(container).toBeInTheDocument();
 
         expect(screen.getByText("Arithmetic Addition")).toBeInTheDocument();
@@ -19,13 +24,19 @@ describe("ModulesList checks", () => {
         // Mock getModules to return an empty array
         vi.spyOn(content, 'getModules').mockReturnValue([]);
 
-        render(<ModulesList />);
+        render(
+            <MemoryRouter>
+                <ModulesList />
+            </MemoryRouter>
+        );
         expect(screen.getByText("No modules found.")).toBeInTheDocument();
     })
 
     it("check a11y on list view", async () => {
         const { container } = render(
-            <ModulesList />
+            <MemoryRouter>
+                <ModulesList />
+            </MemoryRouter>
         );
         await expectNoA11yViolations(container);
     })
