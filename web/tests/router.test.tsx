@@ -1,24 +1,9 @@
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { MemoryRouter } from "react-router-dom";
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { describe, expect, it } from "vitest";
 
-import { api } from "../src/api/client";
 import { AppRoutes } from "../src/App";
-
-const mockProblem = {
-  slug: "addition-demo",
-  prompt: "What is 3 + 4?",
-  expression: "3 + 4 = ?",
-};
-
-beforeEach(() => {
-  vi.spyOn(api, "getDemoProblem").mockResolvedValue(mockProblem);
-});
-
-afterEach(() => {
-  vi.restoreAllMocks();
-});
 
 describe("Router & Layout", () => {
   it("renders the root layout landmarks: header, main outlet, and footer", async () => {
@@ -28,13 +13,7 @@ describe("Router & Layout", () => {
       </MemoryRouter>,
     );
 
-    // expect(screen.getByRole("banner")).toBeInTheDocument();
-    // expect(screen.getByRole("main")).toBeInTheDocument();
     expect(screen.getByRole("contentinfo")).toBeInTheDocument();
-
-    // await waitFor(() => {
-    //   expect(screen.getByText(mockProblem.prompt)).toBeInTheDocument();
-    // });
   });
 
   it("renders the home page at route '/'", async () => {
