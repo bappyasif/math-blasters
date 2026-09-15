@@ -20,7 +20,7 @@ export const ModulesList = () => {
                 </Link>
             ))
         ) : (
-            <div className="empty-state" role="alert">
+            <div className="empty-state">
                 <p>No modules found.</p>
                 <a target="_blank" href="https://github.com/freeCodeCamp-Summer-Cohort-2026/math-blasters/blob/main/CONTRIBUTING.md#adding-a-lesson">
                     Learn how to add a lesson
