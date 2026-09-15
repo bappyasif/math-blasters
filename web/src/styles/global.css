@@ -423,16 +423,6 @@ a.btn {
 }
 
 /* --- modules list --- */
-.modules-list {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(12rem, 1fr));
-  gap: var(--space-3);
-  padding: var(--space-4);
-  background-color: var(--surface);
-  text-align: center;
-  width: 100%;
-}
-
 .module-card-link {
   display: flex;
   flex-direction: column;
@@ -459,16 +449,26 @@ a.btn {
   border-radius: var(--radius-md);
 }
 
+.module-card {
+  display: flex;
+  gap: var(--space-4);
+  flex-direction: row;
+  align-items: baseline;
+  justify-content: end;
+  width: 100%;
+}
+
 .module-card-description {
   font-size: 0.85rem;
   font-weight: 500;
   color: var(--text);
+  width: (100% - 3rem);
+  text-align: left;
 }
 
 .module-card-lessons {
-  margin-top: var(--space-2);
   color: var(--text-muted);
-  font-size: 0.75rem;
+  font-size: 0.85rem;
   font-weight: 400;
 }
 
