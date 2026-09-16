@@ -462,7 +462,7 @@ a.btn {
   font-size: 0.85rem;
   font-weight: 500;
   color: var(--text);
-  width: calc(100% - 3rem);
+  width: calc(70% - 1rem);
   text-align: left;
 }
 
