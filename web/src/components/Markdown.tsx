@@ -7,7 +7,7 @@ type RenderMarkdownProps = {
     content?: string;
 };
 
-export function RenderMarkdown({ content = exampleMarkdown }: RenderMarkdownProps) {
+export function RenderMarkdown({ content }: RenderMarkdownProps) {
     return (
         <article className="markdown">
             <ReactMarkdown
@@ -21,7 +21,7 @@ export function RenderMarkdown({ content = exampleMarkdown }: RenderMarkdownProp
                     )
                 }}
             >
-                {content}
+                {content ?? exampleMarkdown}
             </ReactMarkdown>
         </article>
     );

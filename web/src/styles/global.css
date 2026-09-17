@@ -632,9 +632,6 @@ a.btn {
 
 .markdown .katex-display {
   font-size: 1.4em;
-}
-
-.markdown .katex-display {
   max-width: 100%;
   overflow-x: auto;
   overflow-y: hidden;
