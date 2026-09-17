@@ -438,8 +438,8 @@ a.btn {
 
 .module-card-link:hover {
   background-color: var(--surface-sunken);
-  border-color: var(--primary);
-  color: var(--primary);
+  border-color: var(--accent);
+  color: var(--accent);
   border-radius: var(--radius-md);
 }
 
@@ -487,10 +487,15 @@ a.btn {
   font-size: 1rem;
   line-height: 1.6;
   color: var(--text);
-  overflow: auto;
   max-width: 100%;
-  overflow-wrap: anywhere;
+  /* Wide content scrolls in its own container - see .markdown-table-wrapper,
+     .markdown pre and .katex-display. An overflow here would make the whole
+     article the scroll container and can clip focus rings on links inside. */
+  overflow-wrap: break-word;
 }
+
+/* Content fills its container. The Card it sits in owns the outer padding,
+   so a measure here would only leave dead space to the right of the text. */
 
 .markdown h1,
 .markdown h2,
@@ -511,7 +516,7 @@ a.btn {
 
 .markdown h2 {
   font-size: 1.25rem;
-} 
+}
 
 .markdown h3 {
   font-size: 1.125rem;
@@ -521,18 +526,36 @@ a.btn {
   font-size: 1rem;
 }
 
+/* h5 and h6 stay at or above body size - a heading smaller than the text it
+   introduces reads as a caption. They separate by weight and tracking. */
 .markdown h5 {
-  font-size: 0.875rem;
+  font-size: 1rem;
+  font-weight: 700;
 }
 
 .markdown h6 {
-  font-size: 0.75rem;
+  font-size: 1rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: var(--text-muted);
+}
+
+/* A step is rendered inside a Card, which owns the outer padding. Without
+   this the first and last blocks add a second, uneven gap. */
+.markdown > *:first-child {
+  margin-top: 0;
+}
+
+.markdown > *:last-child {
+  margin-bottom: 0;
 }
 
 .markdown ul,
 .markdown ol {
-  margin-top: var(--space-3);
-  margin-bottom: var(--space-3);
+  margin-top: var(--space-4);
+  margin-bottom: var(--space-4);
+  /* Just enough for the marker to sit outside the text. The browser default
+     is 40px, which indents a lesson's list for no reason. */
   padding-left: var(--space-4);
 }
 
@@ -540,38 +563,66 @@ a.btn {
   margin-bottom: var(--space-2);
 }
 
-.markdown p {
+/*
+ * A list with blank lines between its items is "loose" in markdown and each
+ * item comes back as <li><p>text</p></li>. Without this the paragraph margins
+ * apply inside the item and every bullet gains a gap above and below its own
+ * text. Paragraphs still separate from each other within a single item.
+ */
+.markdown li > p {
+  margin-top: 0;
+  margin-bottom: 0;
+}
+
+.markdown li > p + p {
   margin-top: var(--space-3);
-  margin-bottom: var(--space-3);
+}
+
+.markdown li > ul,
+.markdown li > ol {
+  margin-top: var(--space-2);
+  margin-bottom: var(--space-2);
+}
+
+.markdown li::marker {
+  color: var(--text-muted);
+}
+
+/* Body line is ~25px at this size; a 12px gap reads as one dense block. */
+.markdown p {
+  margin-top: var(--space-4);
+  margin-bottom: var(--space-4);
 }
 
 .markdown a {
-  color: var(--primary);
-  text-decoration: none;
-}
-
-.markdown a:hover {
+  color: var(--accent);
   text-decoration: underline;
 }
 
-.markdown code {
-  font-family: var(--font-mono);
-  font-size: 0.9em;
-  background: var(--surface-sunken);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-sm);
-  padding: 0.1em 0.4em;
+.markdown a:hover {
+  text-decoration-thickness: 2px;
 }
 
+/* Inline code inherits the global `code` rule; only the block form needs
+   anything extra. The block is the container, so the code inside it drops
+   its own chrome rather than nesting two boxes. */
 .markdown pre {
   max-width: 100%;
   overflow-x: auto;
+  margin-top: var(--space-3);
+  margin-bottom: var(--space-3);
+  padding: var(--space-3);
+  background: var(--surface-sunken);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
 }
 
 .markdown pre code {
   background: transparent;
   border: none;
+  border-radius: 0;
   padding: 0;
+  font-size: 0.875rem;
 }
 
 .markdown-table-wrapper {
@@ -581,36 +632,55 @@ a.btn {
 
 .markdown table {
   border-collapse: collapse;
-  margin-top: var(--space-3);
-  margin-bottom: var(--space-3);
+  margin-top: var(--space-4);
+  margin-bottom: var(--space-4);
   min-width: 100%;
+  /* Figures line up in columns instead of drifting. This is a maths app and
+     most table cells are numbers. */
+  font-variant-numeric: tabular-nums;
 }
 
 .markdown th,
 .markdown td {
   border: 1px solid var(--border);
-  padding: var(--space-2);
+  padding: var(--space-2) var(--space-3);
   text-align: left;
 }
 
 .markdown th {
   background-color: var(--surface-sunken);
+  font-weight: 700;
+}
+
+/* Anchors the header to the body rather than leaving it as one more row. */
+.markdown thead th {
+  border-bottom: 2px solid var(--border-strong);
 }
 
 .markdown img {
   max-width: 100%;
+  /* Without this, a width/height pair on the tag distorts the image once
+     max-width kicks in. */
+  height: auto;
+  border-radius: var(--radius-sm);
 }
 
+/* The UA default is an inset 3D border that ignores the theme. */
 .markdown hr {
-  margin-top: var(--space-4);
-  margin-bottom: var(--space-4);
+  margin-top: var(--space-5);
+  margin-bottom: var(--space-5);
+  border: 0;
+  border-top: 1px solid var(--border);
 }
 
 .markdown blockquote {
   margin-top: var(--space-4);
   margin-bottom: var(--space-4);
   padding-left: var(--space-4);
-  border-left: 2px solid var(--border);
+  /* --accent-soft is near-invisible against the surface in both themes;
+     --accent carries in light and dark. */
+  border-left: 3px solid var(--accent);
+  color: var(--text-muted);
 }
 
 .markdown blockquote p {
@@ -630,9 +700,21 @@ a.btn {
   font-size: 1.1em;
 }
 
+/* Display math is a figure, not a line of prose - it needs room around it,
+   and the scroll padding stops a wide expression sitting flush to the edge. */
 .markdown .katex-display {
   font-size: 1.4em;
   max-width: 100%;
+  margin-top: var(--space-5);
+  margin-bottom: var(--space-5);
+  padding-bottom: var(--space-1);
   overflow-x: auto;
   overflow-y: hidden;
+}
+
+/* The focus ring on the scroll containers should follow their own corners
+   rather than the 8px default. */
+.markdown-table-wrapper:focus-visible,
+.markdown pre:focus-visible {
+  border-radius: var(--radius-md);
 }
