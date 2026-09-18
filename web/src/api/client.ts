@@ -1,7 +1,5 @@
 /** Thin typed wrapper around fetch. */
 
-const BASE_URL = import.meta.env.VITE_API_URL ?? "http://localhost:8000/api";
-
 export class ApiError extends Error {
   constructor(
     message: string,
@@ -55,41 +53,6 @@ export function parseApiErrorMessage(raw: string, fallback: string): string {
   }
 
   return trimmed || fallback;
-}
-
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-async function request<T>(path: string, init?: RequestInit): Promise<T> {
-  let response: Response;
-  const headers = new Headers(init?.headers);
-
-  if (init?.body && !headers.has("Content-Type")) {
-    headers.set("Content-Type", "application/json");
-  }
-
-  try {
-    response = await fetch(`${BASE_URL}${path}`, {
-      ...init,
-      headers,
-    });
-  } catch {
-    // Almost always the API not running -- say so plainly rather than
-    // surfacing a bare "Failed to fetch".
-    throw new ApiError("Can't reach the API. Is it running on port 8000?", 0);
-  }
-
-  if (!response.ok) {
-    let raw = "";
-    try {
-      raw = await response.text();
-    } catch (err) {
-      console.warn("Api client: failed to read error response body", err);
-    }
-    const fallback = response.statusText || `HTTP ${response.status}`;
-    const message = parseApiErrorMessage(raw, fallback);
-    throw new ApiError(message || `HTTP ${response.status}`, response.status);
-  }
-
-  return (await response.json()) as T;
 }
 
 export const api = {
