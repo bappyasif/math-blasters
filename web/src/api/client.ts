@@ -92,6 +92,7 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
 }
 
 export const api = {
+  // add required api contract when ready
   health<T>(path: string, init?: RequestInit): Promise<T> {
     return request<T>(path, init);
   }
