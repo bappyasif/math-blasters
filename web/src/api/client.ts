@@ -94,6 +94,5 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
 }
 
 export const api = {
-  // a fake check request`
-  check: async (): Promise<CheckResponse> => request("/check"),
+  // TODO
 };
