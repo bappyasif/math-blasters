@@ -1,6 +1,6 @@
 /** Thin typed wrapper around fetch. */
 
-import type { CheckResponse, DemoProblem } from "../types";
+import type { CheckResponse } from "../types";
 
 const BASE_URL = import.meta.env.VITE_API_URL ?? "http://localhost:8000/api";
 
@@ -94,11 +94,6 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
 }
 
 export const api = {
-  getDemoProblem: () => request<DemoProblem>("/demo/problem"),
-
-  checkDemoAnswer: (answer: number) =>
-    request<CheckResponse>("/demo/check", {
-      method: "POST",
-      body: JSON.stringify({ answer }),
-    }),
+  // a fake check request`
+  check: async (): Promise<CheckResponse> => request("/check"),
 };
