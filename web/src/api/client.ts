@@ -1,7 +1,5 @@
 /** Thin typed wrapper around fetch. */
 
-import type { CheckResponse } from "../types";
-
 const BASE_URL = import.meta.env.VITE_API_URL ?? "http://localhost:8000/api";
 
 export class ApiError extends Error {
@@ -94,5 +92,7 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
 }
 
 export const api = {
-  // TODO
+  health<T>(path: string, init?: RequestInit): Promise<T> {
+    return request<T>(path, init);
+  }
 };
