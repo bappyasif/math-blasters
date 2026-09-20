@@ -16,13 +16,13 @@ export function LessonView() {
 
   if (!lesson) {
     return <NotFoundPage />;
-  };
+  }
 
   if (lesson.type === "lab") {
     return (
       <LabView lab={lesson} />
     );
-  };
+  }
 
   return (
     <Card as="section" title={lesson.title}>
