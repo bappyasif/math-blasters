@@ -26,10 +26,15 @@ describe("LabView Route /lessons/:slug", () => {
         ).toBeInTheDocument();
     });
 
-    it("renders no main landmark", () => {
+    it("renders the outcome as one level-one heading", () => {
         renderLessonView();
 
         expect(screen.getAllByRole("heading", { level: 1 })).toHaveLength(1);
+    });
+
+    it("does not render a main landmark", () => {
+        renderLessonView();
+
         expect(screen.queryByRole("main")).not.toBeInTheDocument();
     });
 
