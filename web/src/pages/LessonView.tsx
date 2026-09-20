@@ -20,9 +20,7 @@ export function LessonView() {
 
   if (lesson.type === "lab") {
     return (
-      <Card as="section" title={lesson.title} >
-        <LabView />
-      </Card>
+      <LabView />
     );
   };
 
