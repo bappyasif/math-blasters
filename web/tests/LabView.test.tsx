@@ -2,18 +2,19 @@ import { render, screen } from "@testing-library/react";
 import { expectNoA11yViolations } from "./helpers/a11y";
 import { MemoryRouter, Route, Routes } from "react-router-dom";
 import { LessonView } from "../src/pages/LessonView";
+import { describe, it, expect } from "vitest";
 
 function renderLessonView(slug = "marbles-in-total") {
     return render(
-        <MemoryRouter initialEntries={[`/labs/${slug}`]}>
+        <MemoryRouter initialEntries={[`/lessons/${slug}`]}>
             <Routes>
-                <Route path="/labs/:slug" element={<LessonView />} />
+                <Route path="/lessons/:slug" element={<LessonView />} />
             </Routes>
-        </MemoryRouter>,
+        </MemoryRouter>
     );
 };
 
-describe("LabView Route (/labs/:slug)", () => {
+describe("LabView Route /lessons/:slug", () => {
     it("renders the lab outcome as the main heading", () => {
         renderLessonView();
 
