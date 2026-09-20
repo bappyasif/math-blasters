@@ -6,9 +6,10 @@ import styles from "./LessonStepper.module.css";
 
 export interface LessonStepperProps {
   lesson: PageLesson;
+  headingLevel?: "h2" | "h3";
 }
 
-export function LessonStepper({ lesson }: LessonStepperProps) {
+export function LessonStepper({ lesson, headingLevel }: LessonStepperProps) {
   const [currentStepIndex, setCurrentStepIndex] = useState(0);
   const totalSteps = lesson.steps.length;
   const currentStep = lesson.steps[currentStepIndex];
@@ -59,9 +60,17 @@ export function LessonStepper({ lesson }: LessonStepperProps) {
           Moving focus here is what announces a step change, so there is
           no live region duplicating this text.
         */}
-        <h3 ref={headingRef} tabIndex={-1} className={styles.heading}>
-          {progressText}
-        </h3>
+        {
+          headingLevel === "h2" ? (
+            <h2 ref={headingRef} tabIndex={-1} className={styles.heading}>
+              {progressText}
+            </h2>
+          ) : (
+            <h3 ref={headingRef} tabIndex={-1} className={styles.heading}>
+              {progressText}
+            </h3>
+          )
+        }
       </div>
 
       <div className={styles.stepContainer}>

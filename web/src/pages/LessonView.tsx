@@ -16,15 +16,15 @@ export function LessonView() {
 
   if (!lesson) {
     return <NotFoundPage />;
-  }
+  };
 
   if (lesson.type === "lab") {
     return (
-      <Card as="section" title={lesson.title} titleLevel="h1">
+      <Card as="section" title={lesson.title} >
         <LabView />
       </Card>
     );
-  }
+  };
 
   return (
     <Card as="section" title={lesson.title}>

@@ -10,11 +10,11 @@ export default function LabView() {
 
     if (!lab) {
         return <NotFoundPage />;
-    }
+    };
 
     return (
-        <Card as="main" title={lab.outcome} titleLevel="h2" className="outcome">
-            <LessonStepper lesson={lab} />
+        <Card as="section" title={lab.outcome} titleLevel="h1" titleVariant="heading" className="outcome">
+            <LessonStepper lesson={lab} headingLevel="h2" />
         </Card>
     );
-}
+};
