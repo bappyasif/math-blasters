@@ -20,7 +20,7 @@ export function LessonView() {
 
   if (lesson.type === "lab") {
     return (
-      <LabView />
+      <LabView lab={lesson} />
     );
   };
 
