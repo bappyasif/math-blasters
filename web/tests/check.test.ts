@@ -54,26 +54,75 @@ describe("normalizeSubmission", () => {
   });
 });
 
-describe("checkEquivalent stub", () => {
-  it("throws indicating checkEquivalent is not yet implemented without leaking expected", () => {
+describe("checkEquivalent() checks", () => {
+  it("correct equivalency check", () => {
+    const expectedExpr = '1/2'
+    const submittedExpr = '1/2'
+
+    const result = checkEquivalent({ check: 'equivalent', expected: expectedExpr }, submittedExpr)
+
+    expect(result).toEqual({ passed: true })
+  })
+
+  it("not symbolically equivalency check", () => {
     const criterion: EquivalentCriterion = {
       check: "equivalent",
       expected: "secret_formula_x^2 + 2x + 1",
       reason_code: "not_symbolically_equivalent",
     };
 
-    let thrownError: Error | undefined;
-    try {
-      checkEquivalent(criterion, "x^2 + 2x + 1");
-    } catch (err) {
-      thrownError = err as Error;
-    }
+    expect(checkEquivalent(criterion, "x^2 + 2x + 1")).toEqual({
+      passed: false,
+      reason_code: "not_symbolically_equivalent",
+    });
+  })
 
-    expect(thrownError).toBeDefined();
-    expect(thrownError?.message).toBe("checkEquivalent is not yet implemented");
-    expect(thrownError?.message).not.toContain(criterion.expected);
-  });
-});
+  it("incorrect equivalency check", () => {
+    const expectedExpr = '1/2'
+    const submittedExpr = '1/3'
+
+    const result = checkEquivalent({ check: 'equivalent', expected: expectedExpr, reason_code: 'not_equivalent' }, submittedExpr)
+
+    expect(result).toEqual({ passed: false, reason_code: 'not_equivalent' })
+  })
+
+  // Tests: 1/2 vs 0.5, 2x vs x*2, x+x vs 2x, unparseable input, something that is not equivalent, and a nonsense string like ))(.
+  it("1/2 vs 0.5 check", () => {
+    const expectedExpr = '1/2'
+    const submittedExpr = '0.5'
+
+    const result = checkEquivalent({ check: 'equivalent', expected: expectedExpr }, submittedExpr)
+
+    expect(result).toEqual({ passed: true })
+  })
+
+  it("2x vs x*2 check", () => {
+    const expectedExpr = '2x'
+    const submittedExpr = 'x*2'
+
+    const result = checkEquivalent({ check: 'equivalent', expected: expectedExpr }, submittedExpr)
+
+    expect(result).toEqual({ passed: true })
+  })
+
+  it("x+x vs 2x check", () => {
+    const expectedExpr = 'x+x'
+    const submittedExpr = '2x'
+
+    const result = checkEquivalent({ check: 'equivalent', expected: expectedExpr }, submittedExpr)
+
+    expect(result).toEqual({ passed: true })
+  })
+
+  it("unparseable input check", () => {
+    const expectedExpr = '1/2'
+    const submittedExpr = ')('
+
+    const result = checkEquivalent({ check: 'equivalent', expected: expectedExpr }, submittedExpr)
+
+    expect(result).toEqual({ passed: false, "error": "Invalid expression" })
+  })
+})
 
 describe("checkCriterion", () => {
   describe("empty submissions", () => {
@@ -360,20 +409,6 @@ describe("checkCriterion", () => {
         passed: false,
         reason_code: "wrong_colors",
       });
-    });
-  });
-
-  describe("equivalent check dispatch", () => {
-    it("dispatches to checkEquivalent and propagates error", () => {
-      const criterion: EquivalentCriterion = {
-        check: "equivalent",
-        expected: "2x + 1",
-        reason_code: "not_equivalent",
-      };
-
-      expect(() => checkCriterion(criterion, "1 + 2x")).toThrow(
-        "checkEquivalent is not yet implemented",
-      );
     });
   });
 
