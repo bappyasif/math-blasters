@@ -396,4 +396,11 @@ describe("parseCriteria", () => {
   ])("rejects mapping form: %s", (_label, yaml) => {
     expect(() => parseCriteria(yaml, "lesson.md", 1)).toThrow();
   });
+
+  // hints should be a list of non-empty strings
+  it("rejects mapping form with non-empty hints", () => {
+    const yaml = `hints: [""]\ncriteria:\n  - check: equals\n    expected: 15\n    reason_code: wrong_total`;
+
+    expect(() => parseCriteria(yaml, "lesson.md", 1)).toThrow();
+  });
 });

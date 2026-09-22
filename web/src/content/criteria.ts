@@ -42,6 +42,11 @@ export function parseCriteria(yamlSource: string, path: string, stepNumber: numb
         throw new Error(`${path}: the "hints" field must be a non-empty list of strings.`);
       }
 
+      // check that each hint is a string and not empty
+      if(!Array.isArray(data.hints) || !data.hints.every((item) => typeof item === "string" && item.trim() !== "")) {
+        throw new Error(`${path}: the "hints" field must be a non-empty list of strings.`);
+      }
+
       hints = data.hints;
     }
 
