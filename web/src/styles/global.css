@@ -156,6 +156,8 @@ code {
 .hero__title {
   font-size: clamp(2rem, 6vw, 3.1rem);
   font-weight: 800;
+  line-height: 1.15;
+  letter-spacing: -0.02em;
 }
 
 .hero__title em {
@@ -936,10 +938,21 @@ a.btn {
   border-radius: var(--radius-md);
 }
 
+/* ------------------------------------------------------------- lab view --- */
 
-/* ---------- LAB VIEW ---------- */
-.outcome {
-  margin-top: var(--space-4);
-  margin-bottom: var(--space-4);
-  width: 100%;
+/* The outcome is the task, so it outranks the step counter visually too. */
+.lab-view .card-title {
+  font-size: clamp(1.75rem, 4vw, 2.25rem);
+  margin-bottom: 0;
+}
+
+.lab-view__name {
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: var(--text-muted);
+}
+
+.lab-view__description {
+  max-width: 60ch;
+  color: var(--text-muted);
 }

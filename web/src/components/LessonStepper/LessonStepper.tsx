@@ -6,10 +6,14 @@ import styles from "./LessonStepper.module.css";
 
 export interface LessonStepperProps {
   lesson: PageLesson;
+  // h3 under a tutorial's h2 title, h2 under a lab's h1 outcome.
   headingLevel?: "h2" | "h3";
 }
 
-export function LessonStepper({ lesson, headingLevel }: LessonStepperProps) {
+export function LessonStepper({
+  lesson,
+  headingLevel = "h3",
+}: LessonStepperProps) {
   const [currentStepIndex, setCurrentStepIndex] = useState(0);
   const totalSteps = lesson.steps.length;
   const currentStep = lesson.steps[currentStepIndex];
@@ -36,6 +40,7 @@ export function LessonStepper({ lesson, headingLevel }: LessonStepperProps) {
   const currentStepNumber = currentStepIndex + 1;
   const progressPercent = totalSteps > 0 ? (currentStepNumber / totalSteps) * 100 : 0;
   const progressText = `Step ${currentStepNumber} of ${totalSteps}`;
+  const Heading = headingLevel;
 
   return (
     <div className={styles.stepper}>
@@ -56,21 +61,13 @@ export function LessonStepper({ lesson, headingLevel }: LessonStepperProps) {
         </div>
 
         {/*
-          Sits under the lesson title, which Card renders as an h2.
+          Sits under the page's own title, so the caller picks the level.
           Moving focus here is what announces a step change, so there is
           no live region duplicating this text.
         */}
-        {
-          headingLevel === "h2" ? (
-            <h2 ref={headingRef} tabIndex={-1} className={styles.heading}>
-              {progressText}
-            </h2>
-          ) : (
-            <h3 ref={headingRef} tabIndex={-1} className={styles.heading}>
-              {progressText}
-            </h3>
-          )
-        }
+        <Heading ref={headingRef} tabIndex={-1} className={styles.heading}>
+          {progressText}
+        </Heading>
       </div>
 
       <div className={styles.stepContainer}>
