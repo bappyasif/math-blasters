@@ -31,7 +31,7 @@ export function parseCriteria(yamlSource: string, path: string, stepNumber: numb
 
     if(typeof data.checking !== "undefined") {
       if(typeof data.checking !== "string" || data.checking.trim() === "") {
-        throw new Error(`${path}: the "checking" field must be a non-empty string.`);
+        throw new Error(`${path}: the "checking" field must be a non-empty string, at step ${stepNumber}.`);
       }
 
       checking = data.checking;
@@ -39,12 +39,12 @@ export function parseCriteria(yamlSource: string, path: string, stepNumber: numb
 
     if(typeof data.hints !== "undefined") {
       if(!Array.isArray(data.hints) || data.hints.length === 0) {
-        throw new Error(`${path}: the "hints" field must be a non-empty list of strings.`);
+        throw new Error(`${path}: the "hints" field must be a non-empty list of strings, at step ${stepNumber}.`);
       }
 
       // check that each hint is a string and not empty
       if(!Array.isArray(data.hints) || !data.hints.every((item) => typeof item === "string" && item.trim() !== "")) {
-        throw new Error(`${path}: the "hints" field must be a non-empty list of strings.`);
+        throw new Error(`${path}: the "hints" field must be a non-empty list of strings, at step ${stepNumber}.`);
       }
 
       hints = data.hints;

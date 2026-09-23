@@ -80,7 +80,7 @@ An answer step's criteria block may also include two optional fields, `checking`
 - `checking` — a plain-language sentence describing what the step is checking. Not shown to learners yet; this is a schema slot for later UI.
 - `hints` — an ordered list of sentences to offer a learner who is stuck, in the order they'd be shown.
 
-​```
+```
 checking: the total number of marbles across all three jars
 hints:
   - Count each jar separately first.
@@ -89,7 +89,7 @@ criteria:
   - check: equals
     expected: 15
     reason_code: wrong_total
-​```
+```
 
 The bare list of criteria (no `checking`/`hints`) is still valid and means exactly what it always has.
 
