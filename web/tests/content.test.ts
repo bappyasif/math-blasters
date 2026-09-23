@@ -11,6 +11,7 @@ import {
   getModule,
   getLesson,
   getModules,
+  getModuleForLesson,
 } from "../src/content";
 import { parseCriteria } from "../src/content/criteria";
 import { expectNoCriteria } from "./helpers/accessors";
@@ -154,6 +155,17 @@ describe("content accessors", () => {
     expect(getLesson("does-not-exist")).toBeUndefined();
   });
 
+  it("returns the slug of the module a lesson belongs to", () => {
+    const module = contentIndex[0];
+    const lesson = module.lessons[0];
+
+    expect(getModuleForLesson(lesson.slug)).toBe(module.slug);
+  });
+
+  it("returns undefined for an unknown lesson slug from getModuleForLesson", () => {
+    expect(getModuleForLesson("does-not-exist")).toBeUndefined();
+  });
+
   it("does not expose criteria from getModules", () => {
     const pageModules = getModules();
 
@@ -190,7 +202,7 @@ describe("parseCriteria", () => {
   it("rejects an equals criterion with a malformed expected value", () => {
     const yaml = `- check: equals\n  expected: [1, 2, 3]\n  reason_code: invalid_expected`;
 
-    expect(() => parseCriteria(yaml, "lesson.md", 1).criteria).toThrow();
+    expect(() => parseCriteria(yaml, "lesson.md", 1)).toThrow();
   });
   it("parses an approx criterion", () => {
     const yaml = `- check: approx\n  expected:\n    value: 3.14\n    epsilon: 0.01\n  reason_code: wrong_pi`;
