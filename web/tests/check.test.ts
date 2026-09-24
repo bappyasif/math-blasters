@@ -118,9 +118,45 @@ describe("checkEquivalent() checks", () => {
     const expectedExpr = '1/2'
     const submittedExpr = ')('
 
-    const result = checkEquivalent({ check: 'equivalent', expected: expectedExpr }, submittedExpr)
+    const result = checkEquivalent({ check: 'equivalent', expected: expectedExpr, reason_code: 'not_equivalent' }, submittedExpr)
 
-    expect(result).toEqual({ passed: false, "error": "Invalid expression" })
+    expect(result).toEqual({ passed: false, reason_code: 'not_equivalent', error: 'Invalid expression' })
+  })
+
+  it("nonsense string ))( check", () => {
+    const result = checkEquivalent({ check: 'equivalent', expected: '1/2', reason_code: 'not_equivalent' }, '))(')
+
+    expect(result).toEqual({ passed: false, reason_code: 'not_equivalent', error: 'Invalid expression' })
+  })
+
+  it("huge power 9^9^9 fails fast instead of hanging", () => {
+    const start = performance.now()
+    const result = checkEquivalent({ check: 'equivalent', expected: '1', reason_code: 'not_equivalent' }, '9^9^9')
+
+    expect(performance.now() - start).toBeLessThan(1000)
+    expect(result).toEqual({ passed: false, reason_code: 'not_equivalent' })
+  })
+
+  it("overly complex expression fails fast instead of hanging", () => {
+    const submittedExpr = Array(30).fill('x').join('+')
+    const start = performance.now()
+    const result = checkEquivalent({ check: 'equivalent', expected: '30x', reason_code: 'not_equivalent' }, submittedExpr)
+
+    expect(performance.now() - start).toBeLessThan(1000)
+    expect(result).toEqual({ passed: false, reason_code: 'not_equivalent', error: 'Expression is too complex' })
+  })
+
+  it("0.1+0.2 vs 0.3 check tolerates float noise", () => {
+    const result = checkEquivalent({ check: 'equivalent', expected: '0.3' }, '0.1+0.2')
+
+    expect(result).toEqual({ passed: true })
+  })
+
+  it("evaluate() is not available to submissions", () => {
+    const result = checkEquivalent({ check: 'equivalent', expected: '1', reason_code: 'not_equivalent' }, 'evaluate("1")')
+
+    expect(result.passed).toBe(false)
+    expect(result.reason_code).toBe('not_equivalent')
   })
 })
 
@@ -408,6 +444,31 @@ describe("checkCriterion", () => {
       expect(checkCriterion(stringSetCriterion, "red, blue")).toEqual({
         passed: false,
         reason_code: "wrong_colors",
+      });
+    });
+  });
+
+  describe("equivalent check dispatch", () => {
+    it("dispatches to checkEquivalent and passes an equivalent answer", () => {
+      const criterion: EquivalentCriterion = {
+        check: "equivalent",
+        expected: "2x + 1",
+        reason_code: "not_equivalent",
+      };
+
+      expect(checkCriterion(criterion, "1 + 2x")).toEqual({ passed: true });
+    });
+
+    it("dispatches to checkEquivalent and returns the authored reason_code", () => {
+      const criterion: EquivalentCriterion = {
+        check: "equivalent",
+        expected: "2x + 1",
+        reason_code: "not_equivalent",
+      };
+
+      expect(checkCriterion(criterion, "2x + 2")).toEqual({
+        passed: false,
+        reason_code: "not_equivalent",
       });
     });
   });
