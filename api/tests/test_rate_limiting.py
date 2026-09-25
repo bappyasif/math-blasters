@@ -1,12 +1,19 @@
-from fastapi import FastAPI
+from slowapi import Limiter
+
+from app.main import create_app
 
 from app.config import get_settings
 
 def test_rate_limiting_exists():
-    settings = get_settings()
-    app = FastAPI()
-    app.state.limiter = settings.completions_rate_limit
+    # initialize real app instance
+    app = create_app()
+    
+    # assert that app has limiter
+    assert hasattr(app.state, "limiter")
     assert app.state.limiter is not None
+    
+    # assert that limiter is an instance of Limiter
+    assert isinstance(app.state.limiter, Limiter)
 
 def test_rate_limiting_defaults():
     settings = get_settings()
