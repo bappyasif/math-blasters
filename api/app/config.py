@@ -20,6 +20,9 @@ class Settings(BaseSettings):
     # Production-safe default; local HTTP development must explicitly opt out.
     cookie_secure: bool = True
 
+    # Rate limiter
+    completions_rate_limit: str = "20/minute"
+
     @property
     def cors_origin_list(self) -> list[str]:
         return [origin.strip() for origin in self.cors_origins.split(",") if origin.strip()]

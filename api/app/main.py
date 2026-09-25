@@ -19,6 +19,8 @@ from fastapi.responses import JSONResponse
 from starlette.exceptions import HTTPException as StarletteHTTPException
 from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.responses import Response
+from slowapi import Limiter
+from slowapi.util import get_remote_address
 
 from app.config import get_settings
 from app.routers import health
@@ -151,6 +153,13 @@ def create_app() -> FastAPI:
     )
     # Add last so this middleware is outermost and logs CORS preflight responses.
     app.add_middleware(RequestLoggingMiddleware)
+
+    # rate limiting
+    limiter = Limiter(
+        key_func=get_remote_address,
+        default_limits=[]
+    )
+    app.state.limiter = limiter
 
     # error handlers
     app.add_exception_handler(StarletteHTTPException, http_exception_handler)
