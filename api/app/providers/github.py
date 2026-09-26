@@ -26,15 +26,17 @@ Follow these steps to set up your local development environment:
 ⚠️ SECURITY WARNING: Never commit real credentials or your `.env` file to git.
 """
 
+
 class GithubProvider:
     name = "github"
+
     def __init__(
-            self, 
-            client_id: str, 
-            client_secret: str, 
-            redirect_uri: str, 
-            http_client:httpx2.Client | None = None
-        ):
+        self,
+        client_id: str,
+        client_secret: str,
+        redirect_uri: str,
+        http_client: httpx2.Client | None = None,
+    ):
         self.client_id = client_id
         self.client_secret = client_secret
         self.redirect_uri = redirect_uri
@@ -52,7 +54,7 @@ class GithubProvider:
         }
 
         return f"https://github.com/login/oauth/authorize?{urlencode(params)}"
-    
+
     def exchange_code(self, code: str, code_verifier: str) -> dict[str, str]:
         """exchanges an authorization code for an access token"""
         url = "https://github.com/login/oauth/access_token"
@@ -67,15 +69,13 @@ class GithubProvider:
         response = self.http_client.post(url, data=data, headers=headers)
         response.raise_for_status()
         data = response.json()
-    
-        if response.status_code == 200:
-            # its a known issue that github returns 200 even if the code is invalid
-            if "error" in data:
-                raise Exception(data["error"])
-            return data
-        else:
-            raise Exception("Failed to exchange code for access token")
-    
+
+        # its a known issue that github returns 200 even if the code is invalid
+        if "error" in data:
+            raise Exception(data["error"])
+
+        return data
+
     def fetch_profile(self, tokens: dict[str, str]) -> ProviderProfile:
         """fetches user account profile, parsing provider-specific fields"""
         access_token = tokens["access_token"]
@@ -107,14 +107,13 @@ class GithubProvider:
 
         if not primary_email:
             raise Exception("Primary email not found")
-        
+
         # returning data as per ProviderProfile
         return ProviderProfile(
-                provider=self.name,
-                provider_account_id=str(user_data.get("id", "")),
-                email=primary_email,
-                email_verified=is_verified,
-                display_name=str(user_data.get("name", "")) or str(user_data.get("login", "")),
-                avatar_url=str(user_data.get("avatar_url", "")),
-            )
-        
+            provider=self.name,
+            provider_account_id=str(user_data.get("id", "")),
+            email=primary_email,
+            email_verified=is_verified,
+            display_name=str(user_data.get("name", "")) or str(user_data.get("login", "")),
+            avatar_url=str(user_data.get("avatar_url", "")),
+        )
