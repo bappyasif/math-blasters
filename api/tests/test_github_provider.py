@@ -1,8 +1,11 @@
-import pytest
-import httpx2
 from urllib.parse import parse_qs, urlsplit
-from app.providers.github import GithubProvider
+
+import httpx2
+import pytest
+
 from app.providers import ProviderProfile
+from app.providers.github import GithubProvider
+
 
 # fixtures 
 @pytest.fixture
@@ -58,7 +61,10 @@ def test_fetch_user_profile(base_provider):
                     {"email": "4EY4o@example.com", "primary": True, "verified": True},
                 ]
             )
-        return httpx2.Response(200, json={"id": 987, "name": "Doe", "login": "d", "avatar_url": "img"})
+        return httpx2.Response(
+            200, 
+            json={"id": 987, "name": "Doe", "login": "d", "avatar_url": "img"}
+            )
     
     base_provider.http_client = make_client(handle)
     tokens = {"access_token": "gho_secret123"}

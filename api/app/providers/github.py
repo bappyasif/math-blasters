@@ -63,7 +63,8 @@ class GithubProvider:
             "code": code,
             "code_verifier": code_verifier,
         }
-        response = self.http_client.post(url, data=data)
+        headers = {"Accept": "application/json"}
+        response = self.http_client.post(url, data=data, headers=headers)
         response.raise_for_status()
         data = response.json()
     
