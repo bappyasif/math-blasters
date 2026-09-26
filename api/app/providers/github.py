@@ -27,6 +27,14 @@ Follow these steps to set up your local development environment:
 """
 
 
+class GithubProviderError(Exception):
+    def __init__(self, message):
+        self.message = message
+
+    def __str__(self):
+        return self.message
+
+
 class GithubProvider:
     name = "github"
 
@@ -41,6 +49,15 @@ class GithubProvider:
         self.client_secret = client_secret
         self.redirect_uri = redirect_uri
         self.http_client = http_client or httpx2.Client()
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, *args):
+        self.close()
+
+    def close(self):
+        self.http_client.close()
 
     def authorize_url(self, state: str, code_challenge: str) -> str:
         """builds a safe url-encoded string"""
@@ -72,7 +89,9 @@ class GithubProvider:
 
         # its a known issue that github returns 200 even if the code is invalid
         if "error" in data:
-            raise Exception(data["error"])
+            raise GithubProviderError(
+                data.get("error_description") or data.get("error", "GithubProviderError")
+            )
 
         return data
 
@@ -111,7 +130,7 @@ class GithubProvider:
         # returning data as per ProviderProfile
         return ProviderProfile(
             provider=self.name,
-            provider_account_id=str(user_data.get("id", "")),
+            provider_account_id=str(user_data.get("id")),
             email=primary_email,
             email_verified=is_verified,
             display_name=str(user_data.get("name", "")) or str(user_data.get("login", "")),
