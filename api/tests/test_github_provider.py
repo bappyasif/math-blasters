@@ -28,9 +28,10 @@ def test_authorize_url(base_provider):
 
 def test_exchange_code(base_provider):
     def handle(req):
-        assert b"client_secret=client_secret" in req.read()
-        assert b"code=test-code" in req.read()
-        assert b"code_verifier=mock_verifier" in req.read()
+        body = req.read()
+        assert b"client_secret=client_secret" in body
+        assert b"code=test-code" in body
+        assert b"code_verifier=mock_verifier" in body
         return httpx2.Response(200, json={"access_token": "gho_secret123"})
 
     base_provider.http_client = make_client(handle)
