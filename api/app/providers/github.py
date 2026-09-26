@@ -89,7 +89,10 @@ class GithubProvider:
 
     def fetch_profile(self, tokens: dict[str, str]) -> ProviderProfile:
         """fetches user account profile, parsing provider-specific fields"""
-        access_token = tokens["access_token"]
+        access_token = tokens.get("access_token")
+        if not access_token:
+            raise ValueError("Access token not found")
+
         url = "https://api.github.com"
 
         headers = {
@@ -122,10 +125,14 @@ class GithubProvider:
         primary_email = primary_entry.get("email")
         is_verified = primary_entry.get("verified", False)
 
+        account_id = user_data.get("id")
+        if not account_id:
+            raise ValueError("Account ID not found")
+
         # returning data as per ProviderProfile
         return ProviderProfile(
             provider=self.name,
-            provider_account_id=str(user_data.get("id")),
+            provider_account_id=str(account_id),
             email=primary_email,
             email_verified=is_verified,
             display_name=str(user_data.get("name", "")) or str(user_data.get("login", "")),
