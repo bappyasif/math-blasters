@@ -110,17 +110,17 @@ class GithubProvider:
         # find primary email address and verified status
         primary_email = None
         is_verified = False
-        for email in emails_list:
-            if email.get("primary") and email.get("verified"):
-                primary_email = email.get("email")
-                is_verified = email.get("verified", False)
-                break
 
-        if not primary_email:
+        primary_entry = next((email for email in emails_list if email.get("primary", False)), None)
+
+        if not primary_entry:
             raise ValueError("Primary email not found")
-        
-        if not is_verified:
+
+        if not primary_entry.get("verified", False):
             raise ValueError("Primary email not verified")
+
+        primary_email = primary_entry.get("email")
+        is_verified = primary_entry.get("verified", False)
 
         # returning data as per ProviderProfile
         return ProviderProfile(
