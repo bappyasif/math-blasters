@@ -85,6 +85,9 @@ class GithubProvider:
                 data.get("error_description") or data.get("error", "GithubProviderError")
             )
 
+        if not data.get("access_token"):
+            raise httpx2.HTTPError("GitHub token exchange returned no access_token")
+
         return data
 
     def fetch_profile(self, tokens: dict[str, str]) -> ProviderProfile:
