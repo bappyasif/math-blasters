@@ -118,6 +118,9 @@ class GithubProvider:
 
         if not primary_email:
             raise ValueError("Primary email not found")
+        
+        if not is_verified:
+            raise ValueError("Primary email not verified")
 
         # returning data as per ProviderProfile
         return ProviderProfile(
