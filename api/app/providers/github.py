@@ -1,5 +1,7 @@
-import httpx2
 from urllib.parse import urlencode
+
+import httpx2
+
 from app.providers import ProviderProfile
 
 """
@@ -26,7 +28,13 @@ Follow these steps to set up your local development environment:
 
 class GithubProvider:
     name = "github"
-    def __init__(self, client_id: str, client_secret: str, redirect_uri: str, http_client:httpx2.Client | None = None):
+    def __init__(
+            self, 
+            client_id: str, 
+            client_secret: str, 
+            redirect_uri: str, 
+            http_client:httpx2.Client | None = None
+        ):
         self.client_id = client_id
         self.client_secret = client_secret
         self.redirect_uri = redirect_uri
@@ -56,6 +64,7 @@ class GithubProvider:
             "code_verifier": code_verifier,
         }
         response = self.http_client.post(url, data=data)
+        response.raise_for_status()
         data = response.json()
     
         if response.status_code == 200:
@@ -94,14 +103,17 @@ class GithubProvider:
                 primary_email = email.get("email")
                 is_verified = email.get("verified", False)
                 break
+
+        if not primary_email:
+            raise Exception("Primary email not found")
         
         # returning data as per ProviderProfile
         return ProviderProfile(
                 provider=self.name,
-                provider_account_id=str(user_data["id"]),
+                provider_account_id=str(user_data.get("id", "")),
                 email=primary_email,
                 email_verified=is_verified,
-                display_name=user_data["name"] or user_data["login"],
-                avatar_url=user_data["avatar_url"]
+                display_name=str(user_data.get("name", "")) or str(user_data.get("login", "")),
+                avatar_url=str(user_data.get("avatar_url", "")),
             )
         
