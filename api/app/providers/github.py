@@ -27,14 +27,6 @@ Follow these steps to set up your local development environment:
 """
 
 
-class GithubProviderError(Exception):
-    def __init__(self, message):
-        self.message = message
-
-    def __str__(self):
-        return self.message
-
-
 class GithubProvider:
     name = "github"
 
@@ -89,7 +81,7 @@ class GithubProvider:
 
         # its a known issue that github returns 200 even if the code is invalid
         if "error" in data:
-            raise GithubProviderError(
+            raise httpx2.HTTPError(
                 data.get("error_description") or data.get("error", "GithubProviderError")
             )
 
@@ -125,7 +117,7 @@ class GithubProvider:
                 break
 
         if not primary_email:
-            raise Exception("Primary email not found")
+            raise ValueError("Primary email not found")
 
         # returning data as per ProviderProfile
         return ProviderProfile(
