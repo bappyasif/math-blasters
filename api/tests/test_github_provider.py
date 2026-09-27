@@ -79,6 +79,7 @@ def test_fetch_user_profile(base_provider):
     assert profile.email == "4EY4o@example.com"
     assert profile.display_name == "Doe"
 
+
 def test_fetch_user_profile_without_name_and_unverified_email(base_provider):
     def handle(req):
         assert req.headers["Authorization"] == "Bearer gho_secret123"

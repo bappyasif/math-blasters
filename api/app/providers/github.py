@@ -120,10 +120,13 @@ class GithubProvider:
         primary_entry = next((email for email in emails_list if email.get("primary", False)), None)
 
         if not primary_entry:
-            raise ValueError("Primary email not found")
+            raise ValueError("Primary email address is missing or empty")
 
         primary_email = primary_entry.get("email")
         is_verified = primary_entry.get("verified", False)
+
+        if not primary_email or str(primary_email).strip() == "":
+            raise ValueError("Primary email address cannot be null or empty")
 
         account_id = user_data.get("id")
         if not account_id:
