@@ -131,7 +131,7 @@ class GithubProvider:
         account_id = user_data.get("id")
         if not account_id:
             raise ValueError("Account ID not found")
-        
+
         raw_display_name = user_data.get("name") or user_data.get("login")
         raw_avatar_url = user_data.get("avatar_url")
 
