@@ -131,6 +131,9 @@ class GithubProvider:
         account_id = user_data.get("id")
         if not account_id:
             raise ValueError("Account ID not found")
+        
+        raw_display_name = user_data.get("name") or user_data.get("login")
+        raw_avatar_url = user_data.get("avatar_url")
 
         # returning data as per ProviderProfile
         return ProviderProfile(
@@ -138,6 +141,6 @@ class GithubProvider:
             provider_account_id=str(account_id),
             email=primary_email,
             email_verified=is_verified,
-            display_name=str(user_data.get("name")) or str(user_data.get("login", "None")),
-            avatar_url=str(user_data.get("avatar_url", "")),
+            display_name=str(raw_display_name) if raw_display_name is not None else None,
+            avatar_url=str(raw_avatar_url) if raw_avatar_url is not None else None,
         )
