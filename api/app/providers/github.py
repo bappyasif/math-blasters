@@ -122,9 +122,6 @@ class GithubProvider:
         if not primary_entry:
             raise ValueError("Primary email not found")
 
-        if not primary_entry.get("verified", False):
-            raise ValueError("Primary email not verified")
-
         primary_email = primary_entry.get("email")
         is_verified = primary_entry.get("verified", False)
 
@@ -138,6 +135,6 @@ class GithubProvider:
             provider_account_id=str(account_id),
             email=primary_email,
             email_verified=is_verified,
-            display_name=str(user_data.get("name", "")) or str(user_data.get("login", "")),
+            display_name=str(user_data.get("name")) or str(user_data.get("login", "None")),
             avatar_url=str(user_data.get("avatar_url", "")),
         )

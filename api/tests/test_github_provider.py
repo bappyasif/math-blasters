@@ -78,3 +78,25 @@ def test_fetch_user_profile(base_provider):
     assert profile.provider_account_id == "987"
     assert profile.email == "4EY4o@example.com"
     assert profile.display_name == "Doe"
+
+def test_fetch_user_profile_without_name_and_unverified_email(base_provider):
+    def handle(req):
+        assert req.headers["Authorization"] == "Bearer gho_secret123"
+        if "/user/emails" in str(req.url):
+            return httpx2.Response(
+                200,
+                json=[
+                    {"email": "4EY4o@example.com", "primary": True, "verified": False},
+                ],
+            )
+        return httpx2.Response(
+            200, json={"id": 987, "name": "None", "login": "d", "avatar_url": "img"}
+        )
+
+    base_provider.http_client = make_client(handle)
+    tokens = {"access_token": "gho_secret123"}
+    profile = base_provider.fetch_profile(tokens)
+
+    assert isinstance(profile, ProviderProfile)
+    assert profile.display_name == "None"
+    assert profile.email_verified is False
