@@ -1,30 +1,30 @@
+"""GitHub sign-in provider.
+
+Local development setup:
+
+Each contributor registers their own GitHub OAuth App, so no client secret
+is ever shared.
+
+1. Go to GitHub -> Settings -> Developer settings -> OAuth apps -> New OAuth App
+   ("Register a new application" if it is your first).
+2. Fill in:
+   - Application name:           Math Blasters (Local Dev)
+   - Homepage URL:               http://localhost:8000
+   - Authorization callback URL: http://localhost:8000/api/auth/github/callback
+3. Click "Register application", then "Generate a new client secret".
+4. Put both values in your own, uncommitted `.env`:
+
+   GITHUB_CLIENT_ID="your_client_id"
+   GITHUB_CLIENT_SECRET="your_client_secret"
+
+Never commit real credentials or your `.env` file.
+"""
+
 from urllib.parse import urlencode
 
 import httpx2
 
 from app.providers import ProviderProfile
-
-"""
-GITHUB OAUTH LOCAL DEVELOPMENT SETUP
-
-Each contributor must register their own personal GitHub OAuth application 
-because GitHub callback URLs are single-value entries. 
-
-Follow these steps to set up your local development environment:
-
-1. Go to: GitHub -> Settings -> Developer Settings -> OAuth Apps -> New OAuth App
-2. Set the configuration fields exactly as follows:
-   - Application Name:          Math Blasters (Local Dev)
-   - Homepage URL:              http://localhost:8000
-   - Authorization callback URL: http://localhost:8000/api/auth/github/callback
-3. Click "Register application", then click "Generate a new client secret".
-4. Copy these keys into your local, uncommitted `.env` file:
-
-   GITHUB_CLIENT_ID="your_copied_client_id"
-   GITHUB_CLIENT_SECRET="your_copied_client_secret"
-
-⚠️ SECURITY WARNING: Never commit real credentials or your `.env` file to git.
-"""
 
 
 class GithubProvider:
@@ -108,29 +108,27 @@ class GithubProvider:
         user_response.raise_for_status()
         user_data = user_response.json()
 
-        # fetch all user emails to locate primary verified email
-        email_response = self.http_client.get(f"{url}/user/emails", headers=headers)
-        email_response.raise_for_status()
-        emails_list = email_response.json()
-
-        # find primary email address and verified status
-        primary_email = None
-        is_verified = False
-
-        primary_entry = next((email for email in emails_list if email.get("primary", False)), None)
-
-        if not primary_entry:
-            raise ValueError("Primary email address is missing or empty")
-
-        primary_email = primary_entry.get("email")
-        is_verified = primary_entry.get("verified", False)
-
-        if not primary_email or str(primary_email).strip() == "":
-            raise ValueError("Primary email address cannot be null or empty")
-
         account_id = user_data.get("id")
         if not account_id:
             raise ValueError("Account ID not found")
+
+        # users can edit granted scopes; without user:email, sign in with no email
+        primary_email = None
+        is_verified = False
+        granted = tokens.get("scope")
+        if granted is None or "user:email" in [s.strip() for s in granted.split(",")]:
+            # the list is paginated (30 by default), so ask for the maximum page
+            email_response = self.http_client.get(
+                f"{url}/user/emails", params={"per_page": 100}, headers=headers
+            )
+            email_response.raise_for_status()
+            emails_list = email_response.json()
+
+            # no primary email: sign in without an email match
+            primary_entry = next((email for email in emails_list if email.get("primary")), None)
+            if primary_entry and primary_entry.get("email"):
+                primary_email = primary_entry["email"]
+                is_verified = primary_entry.get("verified", False)
 
         raw_display_name = user_data.get("name") or user_data.get("login")
         raw_avatar_url = user_data.get("avatar_url")
