@@ -1,10 +1,8 @@
-import pytest
+from urllib.parse import parse_qs, urlsplit
 
 import httpx2
-
 import jwt
-
-from urllib.parse import parse_qs, urlsplit
+import pytest
 
 from app.providers.google import GoogleProvider
 

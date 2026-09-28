@@ -66,6 +66,7 @@ class GoogleProvider:
             "state": state,
             "code_challenge": code_challenge,
             "code_challenge_method": "S256",
+            "response_type": "code",
         }
 
         return f"https://accounts.google.com/o/oauth2/v2/auth?{urlencode(params)}"
@@ -106,7 +107,7 @@ class GoogleProvider:
             raise ValueError("ID token not found or missing from token payload")
 
         # fetch google's public JSON web key sets(JWKS) to validate the id_token
-        jwks_url = "https://www.googleapis.com/oauth2/v3/certs"
+        jwks_url = "https://www.googleapis.com"
         jwks_response = self.http_client.get(jwks_url)
         jwks_response.raise_for_status()
 
@@ -124,7 +125,7 @@ class GoogleProvider:
                 options={"verify_exp": True},
             )
         except Exception as e:
-            raise ValueError(f"Invalid google id token signature verification: {str(e)}")
+            raise ValueError(f"Invalid google id token signature verification: {str(e)}") from e
 
         # resolve distinct profile identity from token claims
         account_id = claims.get("sub")
