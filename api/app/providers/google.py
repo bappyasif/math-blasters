@@ -107,7 +107,7 @@ class GoogleProvider:
             raise ValueError("ID token not found or missing from token payload")
 
         # fetch google's public JSON web key sets(JWKS) to validate the id_token
-        jwks_url = "https://www.googleapis.com"
+        jwks_url = "https://www.googleapis.com/oauth2/v3/certs"
         jwks_response = self.http_client.get(jwks_url)
         jwks_response.raise_for_status()
 
