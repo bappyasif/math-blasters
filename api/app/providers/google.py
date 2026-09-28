@@ -110,20 +110,23 @@ class GoogleProvider:
         jwks_url = "https://www.googleapis.com/oauth2/v3/certs"
         jwks_response = self.http_client.get(jwks_url)
         jwks_response.raise_for_status()
+        jwks_data = jwks_response.json()
 
         # validate id_token
         # verify cryptography signature and 'aud' (audience) constraints against spoofing
         try:
-            jwk_client = jwt.PyJWKClient(jwks_url)
-            signing_key = jwk_client.get_signing_key_from_jwt(id_token)
-
+            # passing jwt dictionary into decode
+            # pyjwt will find correct signing key locally from jwks_data
             claims = jwt.decode(
                 id_token,
-                signing_key.key,
+                key=None,
                 algorithms=["RS256"],
                 audience=self.client_id,
                 options={"verify_exp": True},
+                issuer="https://google.com",
+                jwks=jwks_data,
             )
+
         except Exception as e:
             raise ValueError(f"Invalid google id token signature verification: {str(e)}") from e
 
