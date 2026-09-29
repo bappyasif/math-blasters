@@ -1,17 +1,10 @@
-from urllib.parse import urlencode
-
-import httpx2
-import jwt
-
-from app.providers import ProviderProfile
-
 """
 Google OpenID Connect Auth Provider.
 
 
 GOOGLE OAUTH LOCAL DEVELOPMENT SETUP
 
-Each contributor must register their own Google Cloud console application 
+Each contributor must register their own Google Cloud console application
 because redirect callback URIs map to single host addresses.
 
 Follow these steps to set up your local development environment:
@@ -32,6 +25,13 @@ Follow these steps to set up your local development environment:
 
 ⚠️ SECURITY WARNING: Never commit real credentials or your `.env` file to git.
 """
+
+from urllib.parse import urlencode
+
+import httpx2
+import jwt
+
+from app.providers import ProviderProfile
 
 
 class GoogleProvider:
@@ -115,20 +115,37 @@ class GoogleProvider:
         # validate id_token
         # verify cryptography signature and 'aud' (audience) constraints against spoofing
         try:
-            # passing jwt dictionary into decode
-            # pyjwt will find correct signing key locally from jwks_data
+            # finding target key by parsing 'kid' manually to avoid runtime errors
+            unverified_header = jwt.get_unverified_header(id_token)
+            kid = unverified_header.get("kid")
+
+            if kid is None:
+                raise ValueError(
+                    "Google profile claim not found or missing or unreadable from token payload"
+                )
+
+            # load pyJWKSet array mapping structure
+            jwt_set = jwt.PyJWKSet(jwks_data.get("keys", []))
+            signing_key = jwt_set.from_jwk_id(kid)
+
+            if signing_key is None:
+                raise ValueError("google id token signature verification failed")
+
             claims = jwt.decode(
                 id_token,
-                key=None,
+                key=signing_key.key,
                 algorithms=["RS256"],
                 audience=self.client_id,
                 options={"verify_exp": True},
-                issuer="https://google.com",
-                jwks=jwks_data,
+                # issuer=["accounts.google.com", "accounts.google.com"],
             )
 
+            issuer = claims.get("iss")
+            if issuer not in ["accounts.google.com", "accounts.google.com"]:
+                raise jwt.InvalidIssuerError("Invalid google id token issuer")
+
         except Exception as e:
-            raise ValueError(f"Invalid google id token signature verification: {str(e)}") from e
+            raise ValueError("Invalid google id token signature verification") from e
 
         # resolve distinct profile identity from token claims
         account_id = claims.get("sub")
@@ -139,9 +156,8 @@ class GoogleProvider:
 
         email_address = claims.get("email")
         if not email_address or str(email_address).strip() == "":
-            raise ValueError("Google primary email cannot be empty or null")
+            email_address = None
 
-        # users can edit granted scopes; without email, sign in with no email
         is_verified = claims.get("email_verified", False)
 
         raw_name = claims.get("name")
