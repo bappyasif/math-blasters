@@ -33,6 +33,14 @@ import jwt
 
 from app.providers import ProviderProfile
 
+JWKS_URL = "https://www.googleapis.com/oauth2/v3/certs"
+
+
+GOOGLE_ISSUERS = [
+    "accounts.google.com",
+    "https://accounts.google.com",
+]
+
 
 class GoogleProvider:
     name = "google"
@@ -101,73 +109,55 @@ class GoogleProvider:
 
         return response_data
 
+    def _get_signing_key(self, id_token: str):
+        kid = jwt.get_unverified_header(id_token).get("kid")
+        if not kid:
+            raise jwt.InvalidTokenError("Token header has no kid")
+
+        response = self.http_client.get(JWKS_URL)
+        response.raise_for_status()
+        for jwk in response.json().get("keys", []):
+            if jwk.get("kid") == kid:
+                return jwt.PyJWK.from_dict(jwk).key
+        raise jwt.InvalidTokenError("No matching signing key")
+
     def fetch_profile(self, tokens: dict[str, str]) -> ProviderProfile:
         id_token = tokens.get("id_token")
         if not id_token:
             raise ValueError("ID token not found or missing from token payload")
 
-        # fetch google's public JSON web key sets(JWKS) to validate the id_token
-        jwks_url = "https://www.googleapis.com/oauth2/v3/certs"
-        jwks_response = self.http_client.get(jwks_url)
-        jwks_response.raise_for_status()
-        jwks_data = jwks_response.json()
-
-        # validate id_token
-        # verify cryptography signature and 'aud' (audience) constraints against spoofing
         try:
-            # finding target key by parsing 'kid' manually to avoid runtime errors
-            unverified_header = jwt.get_unverified_header(id_token)
-            kid = unverified_header.get("kid")
-
-            if kid is None:
-                raise ValueError(
-                    "Google profile claim not found or missing or unreadable from token payload"
-                )
-
-            # load pyJWKSet array mapping structure
-            jwt_set = jwt.PyJWKSet(jwks_data.get("keys", []))
-            signing_key = jwt_set.from_jwk_id(kid)
-
-            if signing_key is None:
-                raise ValueError("google id token signature verification failed")
+            # validate the id_token
+            signing_key = self._get_signing_key(id_token)
 
             claims = jwt.decode(
                 id_token,
-                key=signing_key.key,
+                signing_key,
                 algorithms=["RS256"],
                 audience=self.client_id,
-                options={"verify_exp": True},
-                # issuer=["accounts.google.com", "accounts.google.com"],
+                issuer=GOOGLE_ISSUERS,
+                options={"require": ["exp", "iat", "iss", "aud", "sub"]},
+                leeway=10,  # tolerate small clock skew
             )
+        except jwt.PyJWTError as e:
+            raise ValueError("Invalid Google ID token") from e
 
-            issuer = claims.get("iss")
-            if issuer not in ["accounts.google.com", "accounts.google.com"]:
-                raise jwt.InvalidIssuerError("Invalid google id token issuer")
+        account_id = str(claims.get("sub", "")).strip()
+        if not account_id:
+            raise ValueError("Google profile is missing the 'sub' claim")
 
-        except Exception as e:
-            raise ValueError("Invalid google id token signature verification") from e
+        email = (claims.get("email") or "").strip() or None
+        verified = claims.get("email_verified")
+        email_verified = verified is True or str(verified).lower() == "true"
 
-        # resolve distinct profile identity from token claims
-        account_id = claims.get("sub")
-        if not account_id or str(account_id).strip() == "":
-            raise ValueError(
-                "Google profile claim not found or missing or unreadable from token payload"
-            )
-
-        email_address = claims.get("email")
-        if not email_address or str(email_address).strip() == "":
-            email_address = None
-
-        is_verified = claims.get("email_verified", False)
-
-        raw_name = claims.get("name")
-        raw_avatar_url = claims.get("picture")
+        name = claims.get("name")
+        picture = claims.get("picture")
 
         return ProviderProfile(
             provider="google",
             provider_account_id=account_id,
-            email=email_address,
-            email_verified=bool(is_verified),
-            display_name=str(raw_name) if raw_name is not None else None,
-            avatar_url=str(raw_avatar_url) if raw_avatar_url is not None else None,
+            email=email,
+            email_verified=email_verified,
+            display_name=str(name) if name is not None else None,
+            avatar_url=str(picture) if picture is not None else None,
         )
