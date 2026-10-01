@@ -136,7 +136,7 @@ def test_fetch_profile_jwks_server_error(base_provider, make_token):
         return httpx2.Response(500)
 
     base_provider.http_client = make_client(handle)
-    with pytest.raises(httpx2.HTTPStatusError):
+    with pytest.raises(ValueError, match="Failed to fetch signing keys"):
         base_provider.fetch_profile({"id_token": make_token()})
 
 

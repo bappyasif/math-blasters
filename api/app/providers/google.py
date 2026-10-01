@@ -111,8 +111,8 @@ class GoogleProvider:
 
     def _get_signing_key(self, id_token: str):
         kid = jwt.get_unverified_header(id_token).get("kid")
-        if not kid:
-            raise jwt.InvalidTokenError("Token header has no kid")
+        if not kid or not isinstance(kid, str) or len(kid) == 0 or len(kid) > 256:
+            raise jwt.InvalidTokenError("Token header has missing or invalid kid")
 
         response = self.http_client.get(JWKS_URL)
         response.raise_for_status()
@@ -141,6 +141,8 @@ class GoogleProvider:
             )
         except jwt.PyJWTError as e:
             raise ValueError("Invalid Google ID token") from e
+        except (httpx2.HTTPError, ValueError, KeyError, TypeError) as e:
+            raise ValueError("Failed to fetch signing keys") from e
 
         account_id = str(claims.get("sub", "")).strip()
         if not account_id:
