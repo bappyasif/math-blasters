@@ -82,6 +82,7 @@ def test_authorize_url(base_provider):
     assert params["state"] == ["state"]
     assert params["code_challenge"] == ["code_challenge"]
     assert params["code_challenge_method"] == ["S256"]
+    assert params["response_type"] == ["code"]
 
 
 def test_code_exchange_success(base_provider):
@@ -135,8 +136,9 @@ def test_fetch_profile_jwks_server_error(base_provider, make_token):
         return httpx2.Response(500)
 
     base_provider.http_client = make_client(handle)
-    with pytest.raises(httpx2.HTTPError):
+    with pytest.raises(ValueError, match="signing keys unavailable") as exc:
         base_provider.fetch_profile({"id_token": make_token()})
+    assert isinstance(exc.value.__cause__, httpx2.HTTPStatusError)
 
 
 def test_fetch_profile_missing_id_token(base_provider):

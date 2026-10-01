@@ -141,6 +141,12 @@ class GoogleProvider:
             )
         except jwt.PyJWTError as e:
             raise ValueError("Invalid Google ID token") from e
+        except (httpx2.HTTPError, ValueError) as e:
+            raise ValueError("Could not verify Google ID token: signing keys unavailable") from e
+
+        sub = claims.get("sub")
+        if not isinstance(sub, str) or not sub.strip():
+            raise ValueError("Google profile is missing the 'sub' claim")
 
         account_id = str(claims.get("sub", "")).strip()
         if not account_id:
