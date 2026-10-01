@@ -106,6 +106,17 @@ def test_code_exchange_failure(base_provider):
         base_provider.exchange_code(code="test-code", code_verifier="mock_verifier")
 
 
+def test_code_exchange_error_body(base_provider):
+    def handle(req):
+        return httpx2.Response(
+            200, json={"error": "invalid_grant", "error_description": "Bad Request"}
+        )
+
+    base_provider.http_client = make_client(handle)
+    with pytest.raises(httpx2.HTTPError, match="Bad Request"):
+        base_provider.exchange_code(code="test-code", code_verifier="mock_verifier")
+
+
 def test_code_exchange_missing_id_token(base_provider):
     def handle(req):
         return httpx2.Response(200, json={"access_token": "abcd"})
@@ -212,3 +223,18 @@ def test_fetch_profile_fails_unknown_kid(base_provider, private_key, make_token)
     with pytest.raises(ValueError) as exc:
         base_provider.fetch_profile({"id_token": token})
     assert "Invalid Google ID token" in str(exc.value)
+
+
+def test_fetch_profile_fails_missing_kid(base_provider, private_key, make_token):
+    serve_jwks(base_provider, private_key)
+    token = make_token(kid=None)
+    with pytest.raises(ValueError, match="Invalid Google ID token") as exc:
+        base_provider.fetch_profile({"id_token": token})
+    assert isinstance(exc.value.__cause__, jwt.InvalidTokenError)
+
+
+@pytest.mark.parametrize("body", [["not-an-object"], {"keys": ["not-an-object"]}])
+def test_fetch_profile_malformed_jwks(base_provider, make_token, body):
+    base_provider.http_client = make_client(lambda req: httpx2.Response(200, json=body))
+    with pytest.raises(ValueError, match="Failed to fetch signing keys"):
+        base_provider.fetch_profile({"id_token": make_token()})
