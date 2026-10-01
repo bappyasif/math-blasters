@@ -136,9 +136,8 @@ def test_fetch_profile_jwks_server_error(base_provider, make_token):
         return httpx2.Response(500)
 
     base_provider.http_client = make_client(handle)
-    with pytest.raises(ValueError, match="signing keys unavailable") as exc:
+    with pytest.raises(httpx2.HTTPStatusError):
         base_provider.fetch_profile({"id_token": make_token()})
-    assert isinstance(exc.value.__cause__, httpx2.HTTPStatusError)
 
 
 def test_fetch_profile_missing_id_token(base_provider):
