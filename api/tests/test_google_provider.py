@@ -8,6 +8,7 @@ import pytest
 from cryptography.hazmat.primitives.asymmetric import rsa
 from jwt.algorithms import RSAAlgorithm
 
+from app.providers import OAuthProvider
 from app.providers.google import GoogleProvider
 
 KID = "test-key-123456789"
@@ -68,7 +69,7 @@ def make_client(handler=None):
 
 
 def test_satisfies_interface(base_provider):
-    assert isinstance(base_provider, GoogleProvider)
+    assert isinstance(base_provider, OAuthProvider)
 
 
 def test_authorize_url(base_provider):
@@ -101,6 +102,15 @@ def test_code_exchange_failure(base_provider):
 
     base_provider.http_client = make_client(handle)
     with pytest.raises(httpx2.HTTPError):
+        base_provider.exchange_code(code="test-code", code_verifier="mock_verifier")
+
+
+def test_code_exchange_missing_id_token(base_provider):
+    def handle(req):
+        return httpx2.Response(200, json={"access_token": "abcd"})
+
+    base_provider.http_client = make_client(handle)
+    with pytest.raises(httpx2.HTTPError, match="Google token exchange returned no id_token"):
         base_provider.exchange_code(code="test-code", code_verifier="mock_verifier")
 
 
@@ -187,3 +197,17 @@ def test_fetch_profile_bare_issuer_accepted(base_provider, private_key, make_tok
     serve_jwks(base_provider, private_key)
     profile = base_provider.fetch_profile({"id_token": make_token({"iss": "accounts.google.com"})})
     assert profile.provider_account_id == "1234567890"
+
+
+def test_fetch_profile_false_email_verified(base_provider, private_key, make_token):
+    serve_jwks(base_provider, private_key)
+    profile = base_provider.fetch_profile({"id_token": make_token({"email_verified": False})})
+    assert profile.email_verified is False
+
+
+def test_fetch_profile_fails_unknown_kid(base_provider, private_key, make_token):
+    serve_jwks(base_provider, private_key)
+    token = make_token(kid="unknown-kid")
+    with pytest.raises(ValueError) as exc:
+        base_provider.fetch_profile({"id_token": token})
+    assert "Invalid Google ID token" in str(exc.value)
