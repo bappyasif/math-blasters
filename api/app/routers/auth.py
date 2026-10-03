@@ -35,7 +35,12 @@ from app.auth import OptionalCurrentAccountDep
 from app.config import Settings, get_settings
 from app.db import SessionDep
 from app.exceptions import APIException
-from app.learner import LEARNER_COOKIE_NAME, LEARNER_TOKEN_PATTERN, issue_learner_identity
+from app.learner import (
+    LEARNER_COOKIE_NAME,
+    LEARNER_TOKEN_PATTERN,
+    issue_learner_identity,
+    sign_in_learner,
+)
 from app.models import Account, Learner, OAuthIdentity
 from app.providers import ProviderProfile, get_provider
 from app.schemas import AccountMeGetResponse
@@ -83,7 +88,7 @@ def on_profile(profile: ProviderProfile, session: Session) -> Account:
         display_name=profile.display_name,
         avatar_url=profile.avatar_url,
     )
-    session.commit()
+
     return account
 
 
@@ -348,9 +353,7 @@ def oauth_callback(
     try:
         account = on_profile(profile, session)
         response = _redirect_clearing_cookie(target, settings)
-        learner = issue_learner_identity(session, response)
-        learner.account_id = account.id
-        session.commit()
+        sign_in_learner(session, request, response, account)
     except Exception:
         logger.exception("Error processing authenticated profile in on_profile hook")
         return _redirect_clearing_cookie(target, settings, error="internal_error")

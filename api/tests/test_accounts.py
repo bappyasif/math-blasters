@@ -76,8 +76,17 @@ def sign_in(client, session):
     return sign_in_as
 
 
+@pytest.fixture(autouse=True)
+def clean_registry(monkeypatch):
+    """Ensure each test runs with a clean provider registry.
+
+    This satisfies the teardown constraint by resetting global tracking states.
+    """
+    monkeypatch.setattr("app.providers._registry", {})
+
+
 @pytest.fixture
-def fake_provider():
+def fake_provider(clean_registry):
     register(FakeProvider())
     yield
 
