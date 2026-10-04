@@ -131,12 +131,14 @@ def test_github_id_and_secret_registers_only_github(monkeypatch):
     set_env(monkeypatch, github_client_id="id", github_client_secret="secret")
     create_app()
     assert get_provider("github") is not None
+    assert get_provider("google") is None
 
 
 def test_google_id_and_secret_registers_only_google(monkeypatch):
     set_env(monkeypatch, google_client_id="id", google_client_secret="secret")
     create_app()
     assert get_provider("google") is not None
+    assert get_provider("github") is None
 
 
 def test_create_app_twice_does_not_raise(monkeypatch):

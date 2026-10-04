@@ -85,7 +85,6 @@ def clean_registry(monkeypatch):
 @pytest.fixture
 def fake_provider(clean_registry):
     register(FakeProvider())
-    return
 
 
 def test_first_sign_in_creates_exactly_one_account_and_identity(

@@ -79,7 +79,7 @@ def logout(request: Request, response: Response, session: SessionDep) -> None:
 
 
 def on_profile(profile: ProviderProfile, session: Session) -> Account:
-    account = resolve_account(
+    return resolve_account(
         session=session,
         provider=profile.provider,
         provider_account_id=profile.provider_account_id,
@@ -88,8 +88,6 @@ def on_profile(profile: ProviderProfile, session: Session) -> Account:
         display_name=profile.display_name,
         avatar_url=profile.avatar_url,
     )
-
-    return account
 
 
 def generate_pkce_pair() -> tuple[str, str]:
