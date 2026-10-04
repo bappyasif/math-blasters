@@ -791,7 +791,7 @@ def test_callback_hook_failure_redirects_with_internal_error(client, monkeypatch
     assert 'oauth_flow=""' in cookie_header or "oauth_flow=;" in cookie_header
 
 
-def test_on_profile_stub_callable_is_now_resolved(session):
+def test_on_profile_is_now_resolved(session):
     profile = ProviderProfile(
         provider="github",
         provider_account_id="123",

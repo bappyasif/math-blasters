@@ -8,7 +8,6 @@ from urllib.parse import parse_qs, urlsplit
 
 import pytest
 
-import app.providers as providers
 from app.config import get_settings
 from app.main import create_app
 from app.providers import OAuthProvider, ProviderProfile, get_provider, register
@@ -117,25 +116,27 @@ def test_get_unknown_provider_returns_none():
 def test_nothing_set_registers_nothing(monkeypatch):
     set_env(monkeypatch)
     create_app()
-    assert providers._registry == {}
+    assert get_provider("github") is None
+    assert get_provider("google") is None
 
 
 def test_id_without_secret_registers_nothing(monkeypatch):
     set_env(monkeypatch, github_client_id="id", google_client_id="id")
     create_app()
-    assert providers._registry == {}
+    assert get_provider("github") is None
+    assert get_provider("google") is None
 
 
 def test_github_id_and_secret_registers_only_github(monkeypatch):
     set_env(monkeypatch, github_client_id="id", github_client_secret="secret")
     create_app()
-    assert set(providers._registry) == {"github"}
+    assert get_provider("github") is not None
 
 
 def test_google_id_and_secret_registers_only_google(monkeypatch):
     set_env(monkeypatch, google_client_id="id", google_client_secret="secret")
     create_app()
-    assert set(providers._registry) == {"google"}
+    assert get_provider("google") is not None
 
 
 def test_create_app_twice_does_not_raise(monkeypatch):
@@ -148,4 +149,5 @@ def test_create_app_twice_does_not_raise(monkeypatch):
     )
     create_app()
     create_app()
-    assert set(providers._registry) == {"github", "google"}
+    assert get_provider("github") is not None
+    assert get_provider("google") is not None

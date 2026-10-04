@@ -22,7 +22,7 @@ from starlette.exceptions import HTTPException as StarletteHTTPException
 from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.responses import Response
 
-from app.config import get_settings
+from app.config import Settings, get_settings
 from app.learner import learner_rate_key
 from app.providers import get_provider, register
 from app.providers.github import GithubProvider
@@ -119,7 +119,7 @@ def configure_request_logger(level_name: str) -> None:
         logger.addHandler(handler)
 
 
-def _register_providers(settings) -> None:
+def _register_providers(settings: Settings) -> None:
     base = settings.api_base_url.rstrip("/")
     candidates = [
         ("github", GithubProvider, settings.github_client_id, settings.github_client_secret),
