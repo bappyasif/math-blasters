@@ -52,6 +52,28 @@ Interactive API docs are at [http://localhost:8000/docs](http://localhost:8000/d
 
 The web app uses a baked-at-build-time API URL because this keeps configuration simple and avoids adding a separate runtime configuration mechanism. When the frontend and API share an origin, the default relative `/api` path requires no `VITE_API_URL`; for cross-origin production deployments, set `VITE_API_URL` to the intended API base URL during the production build. Vite embeds `VITE_API_URL` into the frontend at build time, so the value is visible in the shipped frontend bundle and must never contain secrets.
 
+## Local Development
+
+> [!IMPORTANT]
+> **Credential Privacy:** Each contributor must use their own personal credentials for local development. OAuth keys are strictly private and none must ever be committed to version control.
+
+### GitHub Setup:
+  - Go to GitHub Developer Settings > OAuth Apps > **New OAuth App**.
+  - **Homepage URL:** `http://localhost:3000`
+  - **Authorization callback URL:** `http://localhost:8000/api/auth/github/callback`
+  - Copy generated Client ID and Client Secret into your local `.env` file.
+
+### Google Setup:
+  - Go to Google Cloud Console and create or select a project.
+  - Configure OAuth consent screen (External) and create credentials for an **OAuth client ID** (Application type: Web application).
+  - **Authorized redirect URIs:** `http://localhost:8000/api/auth/google/callback`
+  - Copy generated Client ID and Client Secret into your local `.env` file.
+
+### Troubleshooting Sign-In:
+  - **Unconfigured Providers:** If these variables are omitted or blank in your `.env` file, application will still boot cleanly and all existing unauthenticated routes will serve normally. UI will render in a signed-out state, and attempting to log in will gracefully fail without crashing backend.
+  - **Signing Out:** Click logout button in the UI (which hits the `/logout` endpoint) or clear your local storage and session tokens.
+  - **Resetting Identity Local Session:** To completely wipe your local identity and start fresh, clear your browser cookies for `localhost` and restart your API container (`docker compose restart api`).
+
 ## Troubleshooting
 
 ### PostgreSQL port
