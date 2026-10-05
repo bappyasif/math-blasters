@@ -57,22 +57,26 @@ The web app uses a baked-at-build-time API URL because this keeps configuration 
 > [!IMPORTANT]
 > **Credential Privacy:** Each contributor must use their own personal credentials for local development. OAuth keys are strictly private and none must ever be committed to version control.
 
-### GitHub Setup:
-  - Go to GitHub Developer Settings > OAuth Apps > **New OAuth App**.
-  - **Homepage URL:** `http://localhost:3000`
-  - **Authorization callback URL:** `http://localhost:8000/api/auth/github/callback`
-  - Copy generated Client ID and Client Secret into your local `.env` file.
+### GitHub Setup
 
-### Google Setup:
-  - Go to Google Cloud Console and create or select a project.
-  - Configure OAuth consent screen (External) and create credentials for an **OAuth client ID** (Application type: Web application).
-  - **Authorized redirect URIs:** `http://localhost:8000/api/auth/google/callback`
-  - Copy generated Client ID and Client Secret into your local `.env` file.
+- Go to GitHub Developer Settings > OAuth Apps > **New OAuth App**.
+- **Homepage URL:** `http://localhost:5173`
+- **Authorization callback URL:** `http://localhost:8000/api/auth/github/callback`
+- Copy the Client ID into `GITHUB_CLIENT_ID` and the Client Secret into `GITHUB_CLIENT_SECRET` in your local `.env`.
 
-### Troubleshooting Sign-In:
-  - **Unconfigured Providers:** If these variables are omitted or blank in your `.env` file, application will still boot cleanly and all existing unauthenticated routes will serve normally. UI will render in a signed-out state, and attempting to log in will gracefully fail without crashing backend.
-  - **Signing Out:** Click logout button in the UI (which hits the `/logout` endpoint) or clear your local storage and session tokens.
-  - **Resetting Identity Local Session:** To completely wipe your local identity and start fresh, clear your browser cookies for `localhost` and restart your API container (`docker compose restart api`).
+### Google Setup
+
+- Go to Google Cloud Console and create or select a project.
+- Configure OAuth consent screen (External) and create credentials for an **OAuth client ID** (Application type: Web application).
+- **Authorized redirect URIs:** `http://localhost:8000/api/auth/google/callback`
+- Copy the Client ID into `GOOGLE_CLIENT_ID` and the Client Secret into `GOOGLE_CLIENT_SECRET` in your local `.env`.
+
+### Applying the values
+
+The API reads the provider values once, at startup.
+
+- **Docker Compose**: run `docker compose up -d`. `docker compose restart` keeps the old values; `up -d` recreates the container with the new ones.
+- **Running without Docker**: `export` the variables in the shell you run `uvicorn` from, or put them in `api/.env` (the root `.env` is not read there), then restart `uvicorn`.
 
 ## Troubleshooting
 
@@ -145,6 +149,12 @@ npm run dev
 A psycopg `OperationalError: connection refused` means nothing is listening at
 the address in `DATABASE_URL` — it isn't a problem with anything else in
 `.env`.
+
+### Signing in locally
+
+- **Unconfigured provider**: with a provider's two variables empty, the app still starts, every route that doesn't need sign-in serves normally, and the UI renders signed out. The sign-in page still shows both buttons; clicking an unconfigured one shows a 404 JSON response with code `not_found` and the message `OAuth provider 'github' is not configured` (or `'google'`).
+- **Signing out**: open the account menu in the header and choose **Sign out**. It calls `POST /api/auth/logout`, which gives the browser a new, signed-out identity.
+- **Resetting identity**: clearing the cookie is enough, no API restart needed; see [Resetting local learner identity](#resetting-local-learner-identity). Your account stays in the database, and signing in again with the same provider reattaches it. To remove accounts too, drop the local database with `docker compose down -v` and run `./scripts/dev-setup.sh` again. This deletes all local data.
 
 ### Resetting local learner identity
 
