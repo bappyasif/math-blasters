@@ -264,3 +264,10 @@ export function validateLesson(_lesson: Lesson, _path?: string): void {
 }
 
 /* eslint-enable @typescript-eslint/no-unused-vars */
+
+import { lockReason } from "./concepts";
+
+/** The tutorial a lab still needs, or null. Pages pass slugs and never hold the full index. */
+export function getLockReason(labSlug: string, completedSlugs: string[]) {
+  return lockReason(contentIndex, labSlug, completedSlugs);
+}

@@ -1,14 +1,16 @@
 import { render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { MemoryRouter } from "react-router-dom";
+import { MemoryRouter, Route, Routes } from "react-router-dom";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { api } from "../src/api/client";
 import { SettledAppRoutes } from "./helpers/app";
 import { getModule } from "../src/content";
-import { LessonCard } from "../src/pages/ModulePage";
+import { LessonCard, ModulePage } from "../src/pages/ModulePage";
 import { expectNoA11yViolations } from "./helpers/a11y";
 import type { Account } from "../src/types";
+import { ProgressProvider, useProgress } from "../src/context/ProgressContext";
+import { AuthProvider } from "../src/context/AuthContext";
 
 // The real module, not the fixture: the fixture holds only some of its lessons.
 const module = getModule("arithmetic-addition")!;
@@ -20,6 +22,21 @@ function renderAt(path: string, account: Account | null = null) {
       <SettledAppRoutes account={account} />
     </MemoryRouter>,
   );
+}
+
+const signedIn: Account = { id: "usr_1", displayName: "Sam" };
+
+const tutorialSlugs = module.lessons
+  .filter((lesson) => lesson.type === "tutorial")
+  .map((lesson) => lesson.slug);
+
+// Signed in with every tutorial done, so no lab is locked.
+async function renderUnlocked() {
+  vi.spyOn(api, "getProgress").mockResolvedValue(tutorialSlugs);
+  const result = renderAt(modulePath, signedIn);
+  // Wait for progress to land; before that nothing is locked, so a check would prove nothing.
+  await screen.findAllByText("Completed");
+  return result;
 }
 
 describe("ModulePage", () => {
@@ -44,8 +61,8 @@ describe("ModulePage", () => {
     ).toBeInTheDocument();
   });
 
-  it("lists every lesson in the module, each linking to its lesson route", () => {
-    renderAt(modulePath);
+  it("lists every lesson in the module, each linking to its lesson route", async () => {
+    await renderUnlocked();
 
     const items = screen.getAllByRole("listitem");
     expect(items).toHaveLength(module.lessons.length);
@@ -71,8 +88,8 @@ describe("ModulePage", () => {
     expect(titles).toEqual(module.lessons.map((lesson) => lesson.title));
   });
 
-  it("shows each lesson's type in text, not by colour alone", () => {
-    renderAt(modulePath);
+  it("shows each lesson's type in text, not by colour alone", async () => {
+    await renderUnlocked();
 
     const tutorial = screen
       .getByRole("heading", { level: 3, name: "Adding Two Numbers" })
@@ -125,8 +142,8 @@ describe("ModulePage", () => {
 
   it("keeps the lesson links keyboard reachable in document order", async () => {
     const user = userEvent.setup();
-    // Signed in, so the sign-in prompt (covered in SignInPrompt.test.tsx) isn't in the tab order.
-    renderAt(modulePath, { id: "usr_1", displayName: "Sam" });
+
+    await renderUnlocked();
 
     const lessonLinks = screen
       .getAllByRole("heading", { level: 3 })
@@ -274,4 +291,59 @@ describe("LessonCard lock state", () => {
 
     await expectNoA11yViolations(container);
   });
+});
+
+const LOCKED_LAB = "Lab: Marbles in Total, locked";
+
+it("locks a lab whose required tutorial is not completed", () => {
+  renderAt(modulePath);
+
+  expect(screen.getByRole("group", { name: LOCKED_LAB })).toBeInTheDocument();
+});
+
+it("names that tutorial that lab needs, and links to it", () => {
+  renderAt(modulePath);
+
+  const group = screen.getByRole("group", { name: LOCKED_LAB });
+  expect(
+    within(group).getByRole("link", { name: "Adding Two Numbers" }),
+  ).toHaveAttribute("href", "/lessons/adding-two-numbers");
+});
+
+it("unlocks the lab as soon as its tutorial is completed", async () => {
+  const user = userEvent.setup();
+  vi.spyOn(api, "postCompletion").mockResolvedValue({
+    lessonSlug: "adding-two-numbers",
+    completedAt: new Date().toISOString(),
+  });
+
+  function CompleteTutorial() {
+    const { recordCompletion } = useProgress();
+    return (
+      <button onClick={() => recordCompletion("adding-two-numbers")}>
+        Complete tutorial
+      </button>
+    );
+  }
+
+  render(
+    <MemoryRouter initialEntries={[modulePath]}>
+      <AuthProvider initialAccount={signedIn} initialLoading={false}>
+        <ProgressProvider>
+          <CompleteTutorial />
+          <Routes>
+            <Route path="/modules/:slug" element={<ModulePage />} />
+          </Routes>
+        </ProgressProvider>
+      </AuthProvider>
+    </MemoryRouter>,
+  );
+
+  expect(await screen.findByRole("group", { name: LOCKED_LAB })).toBeInTheDocument();
+
+  await user.click(screen.getByRole("button", { name: "Complete tutorial" }));
+
+  expect(
+    await screen.findByRole("link", { name: /^Lab: Marbles in Total/ }),
+  ).toBeInTheDocument();
 });

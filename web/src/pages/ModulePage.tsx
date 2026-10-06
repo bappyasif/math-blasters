@@ -5,7 +5,7 @@ import { CompletedMark } from "../components/CompletedMark";
 import { PageLayout } from "../components/PageLayout";
 import { SignInPrompt } from "../components/SignInPrompt/SignInPrompt";
 import { Skeleton } from "../components/Skeleton";
-import { getModule } from "../content";
+import { getLockReason, getModule } from "../content";
 import type { LessonType, PageLesson, lockReason } from "../content";
 import { useProgress } from "../context/ProgressContext";
 import { NotFoundPage } from "./NotFoundPage";
@@ -60,8 +60,12 @@ export function ModulePage() {
               position={index + 1}
               completed={completedSlugs.includes(lesson.slug)}
               progressLoading={progressLoading}
-              // #119 computes this from progress; until then every lab renders unlocked.
-              lockReason={null}
+              // lockReason={null}
+              lockReason={
+                progressLoading || lesson.type !== "lab"
+                  ? null
+                  : getLockReason(lesson.slug, completedSlugs)
+              }
             />
           </li>
         ))}

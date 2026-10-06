@@ -42,7 +42,9 @@ describe("LessonView Route (/lessons/:slug)", () => {
     expect(
       screen.getByRole("heading", { name: /arithmetic addition/i }),
     ).toBeInTheDocument();
-    expect(screen.getByText(/adding two numbers/i)).toBeInTheDocument();
+    expect(
+      screen.getByRole("heading", { level: 3, name: "Adding Two Numbers" }),
+    ).toBeInTheDocument();
   });
 
   it("renders feedback from the real checker for a tutorial's answer step", async () => {
