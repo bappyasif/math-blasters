@@ -293,57 +293,59 @@ describe("LessonCard lock state", () => {
   });
 });
 
-const LOCKED_LAB = "Lab: Marbles in Total, locked";
+describe("lab locking", () => {
+  const LOCKED_LAB = "Lab: Marbles in Total, locked";
 
-it("locks a lab whose required tutorial is not completed", () => {
-  renderAt(modulePath);
+  it("locks a lab whose required tutorial is not completed", () => {
+    renderAt(modulePath);
 
-  expect(screen.getByRole("group", { name: LOCKED_LAB })).toBeInTheDocument();
-});
-
-it("names that tutorial that lab needs, and links to it", () => {
-  renderAt(modulePath);
-
-  const group = screen.getByRole("group", { name: LOCKED_LAB });
-  expect(
-    within(group).getByRole("link", { name: "Adding Two Numbers" }),
-  ).toHaveAttribute("href", "/lessons/adding-two-numbers");
-});
-
-it("unlocks the lab as soon as its tutorial is completed", async () => {
-  const user = userEvent.setup();
-  vi.spyOn(api, "postCompletion").mockResolvedValue({
-    lessonSlug: "adding-two-numbers",
-    completedAt: new Date().toISOString(),
+    expect(screen.getByRole("group", { name: LOCKED_LAB })).toBeInTheDocument();
   });
 
-  function CompleteTutorial() {
-    const { recordCompletion } = useProgress();
-    return (
-      <button onClick={() => recordCompletion("adding-two-numbers")}>
-        Complete tutorial
-      </button>
+  it("names that tutorial that lab needs, and links to it", () => {
+    renderAt(modulePath);
+
+    const group = screen.getByRole("group", { name: LOCKED_LAB });
+    expect(
+      within(group).getByRole("link", { name: "Adding Two Numbers" }),
+    ).toHaveAttribute("href", "/lessons/adding-two-numbers");
+  });
+
+  it("unlocks the lab as soon as its tutorial is completed", async () => {
+    const user = userEvent.setup();
+    vi.spyOn(api, "postCompletion").mockResolvedValue({
+      lessonSlug: "adding-two-numbers",
+      completedAt: new Date().toISOString(),
+    });
+
+    function CompleteTutorial() {
+      const { recordCompletion } = useProgress();
+      return (
+        <button onClick={() => recordCompletion("adding-two-numbers")}>
+          Complete tutorial
+        </button>
+      );
+    }
+
+    render(
+      <MemoryRouter initialEntries={[modulePath]}>
+        <AuthProvider initialAccount={signedIn} initialLoading={false}>
+          <ProgressProvider>
+            <CompleteTutorial />
+            <Routes>
+              <Route path="/modules/:slug" element={<ModulePage />} />
+            </Routes>
+          </ProgressProvider>
+        </AuthProvider>
+      </MemoryRouter>,
     );
-  }
 
-  render(
-    <MemoryRouter initialEntries={[modulePath]}>
-      <AuthProvider initialAccount={signedIn} initialLoading={false}>
-        <ProgressProvider>
-          <CompleteTutorial />
-          <Routes>
-            <Route path="/modules/:slug" element={<ModulePage />} />
-          </Routes>
-        </ProgressProvider>
-      </AuthProvider>
-    </MemoryRouter>,
-  );
+    expect(await screen.findByRole("group", { name: LOCKED_LAB })).toBeInTheDocument();
 
-  expect(await screen.findByRole("group", { name: LOCKED_LAB })).toBeInTheDocument();
+    await user.click(screen.getByRole("button", { name: "Complete tutorial" }));
 
-  await user.click(screen.getByRole("button", { name: "Complete tutorial" }));
-
-  expect(
-    await screen.findByRole("link", { name: /^Lab: Marbles in Total/ }),
-  ).toBeInTheDocument();
+    expect(
+      await screen.findByRole("link", { name: /^Lab: Marbles in Total/ }),
+    ).toBeInTheDocument();
+  });
 });

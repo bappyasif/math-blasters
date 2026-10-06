@@ -10,6 +10,7 @@ import type {
 } from "./types";
 import { parse as parseYaml } from "yaml";
 import { parseLesson } from "./parse";
+import { lockReason } from "./concepts";
 export { validateConcepts, requirementsOf, lockReason } from "./concepts";
 
 const moduleSources = import.meta.glob<string>("@content/**/module.yaml", {
@@ -264,8 +265,6 @@ export function validateLesson(_lesson: Lesson, _path?: string): void {
 }
 
 /* eslint-enable @typescript-eslint/no-unused-vars */
-
-import { lockReason } from "./concepts";
 
 /** The tutorial a lab still needs, or null. Pages pass slugs and never hold the full index. */
 export function getLockReason(labSlug: string, completedSlugs: string[]) {
