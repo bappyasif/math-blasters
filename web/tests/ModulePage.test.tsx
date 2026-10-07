@@ -296,6 +296,15 @@ describe("LessonCard lock state", () => {
 describe("lab locking", () => {
   const LOCKED_LAB = "Lab: Marbles in Total, locked";
 
+  // Signed in, the provider asks for progress; stubbed so no test reaches the network.
+  beforeEach(() => {
+    vi.spyOn(api, "getProgress").mockResolvedValue([]);
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
   it("locks a lab whose required tutorial is not completed", () => {
     renderAt(modulePath);
 

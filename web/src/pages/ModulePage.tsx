@@ -60,7 +60,6 @@ export function ModulePage() {
               position={index + 1}
               completed={completedSlugs.includes(lesson.slug)}
               progressLoading={progressLoading}
-              // lockReason={null}
               lockReason={
                 progressLoading || lesson.type !== "lab"
                   ? null
