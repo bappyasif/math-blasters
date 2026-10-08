@@ -86,12 +86,16 @@ export function LessonStepper({
   const Heading = headingLevel;
 
   const [announceComplete, setAnnounceComplete] = useState(false);
-  
+
   useEffect(() => {
+    if (!lessonPassed) {
+      setAnnounceComplete(false);
+      return;
+    }
     if (!isComplete) return;
     const timer = setTimeout(() => setAnnounceComplete(true), COMPLETE_ANNOUNCE_DELAY_MS);
     return () => clearTimeout(timer);
-  }, [isComplete]);
+  }, [isComplete, lessonPassed]);
 
   return (
     <div className={styles.stepper}>

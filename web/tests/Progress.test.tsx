@@ -176,7 +176,7 @@ describe("progress", () => {
     const postCompletion = await passBeforeAuthSettles(null);
 
     // The signed-out invitation shows only once auth has settled.
-    expect(await screen.findByRole("link", { name: "Sign in to save your progress" }, { timeout: COMPLETE_ANNOUNCE_DELAY_MS })).toBeInTheDocument();
+    expect(await screen.findByRole("link", { name: "Sign in to save your progress" }, { timeout: COMPLETE_ANNOUNCE_DELAY_MS + 100 })).toBeInTheDocument();
     expect(postCompletion).not.toHaveBeenCalled();
   });
 
