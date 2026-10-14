@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
 import { useLesson } from "../../content";
 import type { PageLesson, StepChecker } from "../../content";
@@ -9,8 +9,6 @@ import { SignInPrompt } from "../SignInPrompt/SignInPrompt";
 import { Step } from "../Step";
 import styles from "./LessonStepper.module.css";
 
-export const COMPLETE_ANNOUNCE_DELAY_MS = 1500;
-
 /** Where the last step leads once the lesson passes: the next lesson, or back to the module. */
 export interface ContinueTarget {
   href: string;
@@ -18,6 +16,8 @@ export interface ContinueTarget {
   /** Fuller name for assistive tech, starting with `label`, such as "Next lesson: Counting On". */
   accessibleName?: string;
 }
+
+const LESSON_COMPLETE_ANNOUNCEMENT = "Lesson complete. Nice work!";
 
 export interface LessonStepperProps {
   lesson: PageLesson;
@@ -85,18 +85,6 @@ export function LessonStepper({
   const progressText = `Step ${currentStepNumber} of ${totalSteps}`;
   const Heading = headingLevel;
 
-  const [announceComplete, setAnnounceComplete] = useState(false);
-
-  useEffect(() => {
-    if (!lessonPassed) {
-      setAnnounceComplete(false);
-      return;
-    }
-    if (!isComplete) return;
-    const timer = setTimeout(() => setAnnounceComplete(true), COMPLETE_ANNOUNCE_DELAY_MS);
-    return () => clearTimeout(timer);
-  }, [isComplete, lessonPassed]);
-
   return (
     <div className={styles.stepper}>
       <div className={styles.header}>
@@ -134,12 +122,12 @@ export function LessonStepper({
             state={currentStepState}
             feedbackState={feedbackState}
             onSubmit={(value) => submit(currentStepIndex, value)}
-          />
+            completion={isComplete ? LESSON_COMPLETE_ANNOUNCEMENT : undefined}          />
         )}
       </div>
 
       {/* Signed out, the completion moment carries the sign-in invitation; it never blocks the controls below. */}
-      <LessonComplete show={announceComplete}>
+      <LessonComplete show={isComplete}>
         <SignInPrompt surface="lesson" />
       </LessonComplete>
 

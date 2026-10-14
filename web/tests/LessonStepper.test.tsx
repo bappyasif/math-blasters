@@ -9,7 +9,6 @@ import type { StepChecker } from "../src/content";
 import { REASON_SENTENCES } from "../src/content/reasons";
 import type { Lesson, PageLesson } from "../src/content/types";
 import { expectNoA11yViolations } from "./helpers/a11y";
-import { COMPLETE_ANNOUNCE_DELAY_MS } from "../src/components/LessonStepper/LessonStepper";
 
 const mockLesson: PageLesson = {
   slug: "addition-basics",
@@ -100,7 +99,8 @@ describe("LessonStepper Component", () => {
 
     // Focus is not stolen on first paint.
     expect(screen.getByRole("heading", { name: /step 1 of 3/i })).not.toHaveFocus();
-    for (const region of screen.getAllByRole("status")) expect(region).toBeEmptyDOMElement();
+    // for (const region of screen.getAllByRole("status")) expect(region).toBeEmptyDOMElement();
+    expect(screen.queryAllByRole("status")).toHaveLength(0);
 
     await user.click(screen.getByRole("button", { name: /next/i }));
 
@@ -574,7 +574,8 @@ describe("LessonStepper Component", () => {
       await screen.findByRole("region", { name: "correct feedback" });
       // One answer step passed, one to go.
       expect(screen.queryByRole("link", { name: /next lesson/i })).not.toBeInTheDocument();
-      expect(completeStatus()).toBeEmptyDOMElement();
+      // expect(completeStatus()).toBeEmptyDOMElement();
+      expect(stepStatus()).not.toHaveTextContent("Lesson complete");
 
       await user.click(screen.getByRole("button", { name: /^next$/i }));
       await answer(user, "5");
@@ -590,10 +591,7 @@ describe("LessonStepper Component", () => {
       expect(link).toHaveTextContent(/^Next lesson$/);
       expect(link).toHaveAttribute("href", "/lessons/counting-on");
       expect(screen.queryByRole("button", { name: /next/i })).not.toBeInTheDocument();
-      await waitFor(
-        () => expect(completeStatus()).toHaveTextContent("Lesson complete. Nice work!"),
-        { timeout: COMPLETE_ANNOUNCE_DELAY_MS + 1000 },
-      );
+      expect(completeStatus()).toHaveTextContent("Lesson complete. Nice work!");
     });
 
     it("is held back while checking is still on screen", async () => {
@@ -604,22 +602,10 @@ describe("LessonStepper Component", () => {
 
       expect(screen.getByRole("region", { name: "checking feedback" })).toBeInTheDocument();
       expect(screen.queryByRole("link", { name: /next lesson/i })).not.toBeInTheDocument();
-      expect(completeStatus()).toBeEmptyDOMElement();
+      // expect(completeStatus()).toBeEmptyDOMElement();
+      // expect(await screen.findByRole("link", { name: /next lesson/i })).toBeInTheDocument();
+      expect(stepStatus()).not.toHaveTextContent("Lesson complete");
       expect(await screen.findByRole("link", { name: /next lesson/i })).toBeInTheDocument();
-    });
-    it("announces completion after the answer feedback, not with it", async () => {
-      const user = userEvent.setup();
-      renderLesson(() => ({ passed: true }));
-
-      await passAll(user);
-
-      // "Correct!" is showing, but the completion sentence has not been announced yet.
-      expect(await screen.findByRole("region", { name: "correct feedback" })).toBeInTheDocument();
-      expect(completeStatus()).toBeEmptyDOMElement();
-
-      await waitFor(() => expect(completeStatus()).toHaveTextContent("Lesson complete. Nice work!"), {
-        timeout: COMPLETE_ANNOUNCE_DELAY_MS + 1000,
-      });
     });
 
     it("keeps plain Next on earlier steps once the lesson has passed", async () => {
@@ -651,7 +637,7 @@ describe("LessonStepper Component", () => {
       render(<LessonStepper lesson={twoAnswerLesson} checker={() => ({ passed: true })} />);
       await passAll(user);
 
-      await waitFor(() => expect(completeStatus()).toHaveTextContent("Lesson complete."), { timeout: COMPLETE_ANNOUNCE_DELAY_MS + 1000 });
+      await waitFor(() => expect(completeStatus()).toHaveTextContent("Lesson complete."));
       expect(screen.getByRole("button", { name: /next/i })).toBeDisabled();
     });
 
@@ -662,6 +648,19 @@ describe("LessonStepper Component", () => {
       await screen.findByRole("link", { name: /next lesson/i });
 
       await expectNoA11yViolations(container);
+    });
+
+    it("says the answer result and the completion in one announcement", async () => {
+      const user = userEvent.setup();
+      renderLesson(() => ({ passed: true }));
+
+      await passAll(user);
+
+      await screen.findByRole("link", { name: /next lesson/i });
+      expect(stepStatus()).toHaveTextContent(
+        `${feedbackContent.correct.announcement} Lesson complete. Nice work!`,
+      );
+      expect(screen.getAllByRole("status")).toHaveLength(1);
     });
   });
 });

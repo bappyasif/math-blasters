@@ -11,10 +11,6 @@ export interface LessonCompleteProps {
 export function LessonComplete({ show, children }: LessonCompleteProps) {
   return (
     <>
-      {/* Always mounted and kept to one sentence, so the children aren't read out with it. */}
-      <p className="sr-only" role="status">
-        {show ? "Lesson complete. Nice work!" : ""}
-      </p>
       {show && children}
     </>
   );
