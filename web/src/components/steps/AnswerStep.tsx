@@ -62,7 +62,6 @@ export function AnswerStep({
   // Shown with the not-yet feedback, so it explains the goal at the moment the answer missed it.
   const checkingStatement = feedbackState === "not-yet" ? step.checking : undefined;
 
-  // announcement 
   const announcement = isBlank
     ? "An answer is needed first."
     : feedbackState

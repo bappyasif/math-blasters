@@ -21,7 +21,7 @@ const mockLesson: PageLesson = {
   ],
 };
 
-// The step's own live region; the completion moment's region follows it in the DOM.
+// The step's own live region, which also carries the completion sentence.
 const stepStatus = () => screen.getAllByRole("status")[0];
 
 describe("LessonStepper Component", () => {
@@ -99,7 +99,6 @@ describe("LessonStepper Component", () => {
 
     // Focus is not stolen on first paint.
     expect(screen.getByRole("heading", { name: /step 1 of 3/i })).not.toHaveFocus();
-    // for (const region of screen.getAllByRole("status")) expect(region).toBeEmptyDOMElement();
     expect(screen.queryAllByRole("status")).toHaveLength(0);
 
     await user.click(screen.getByRole("button", { name: /next/i }));
@@ -417,7 +416,7 @@ describe("LessonStepper Component", () => {
     });
 
     it("shows the error state when the checker breaks, and keeps Next gated", async () => {
-      vi.spyOn(console, "error").mockImplementation(() => { });
+      vi.spyOn(console, "error").mockImplementation(() => {});
       const broken: StepChecker = () => {
         throw new Error("boom");
       };
@@ -574,7 +573,6 @@ describe("LessonStepper Component", () => {
       await screen.findByRole("region", { name: "correct feedback" });
       // One answer step passed, one to go.
       expect(screen.queryByRole("link", { name: /next lesson/i })).not.toBeInTheDocument();
-      // expect(completeStatus()).toBeEmptyDOMElement();
       expect(stepStatus()).not.toHaveTextContent("Lesson complete");
 
       await user.click(screen.getByRole("button", { name: /^next$/i }));
@@ -602,8 +600,6 @@ describe("LessonStepper Component", () => {
 
       expect(screen.getByRole("region", { name: "checking feedback" })).toBeInTheDocument();
       expect(screen.queryByRole("link", { name: /next lesson/i })).not.toBeInTheDocument();
-      // expect(completeStatus()).toBeEmptyDOMElement();
-      // expect(await screen.findByRole("link", { name: /next lesson/i })).toBeInTheDocument();
       expect(stepStatus()).not.toHaveTextContent("Lesson complete");
       expect(await screen.findByRole("link", { name: /next lesson/i })).toBeInTheDocument();
     });
